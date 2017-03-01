@@ -14,7 +14,7 @@
     <Button
         android:layout_width="70dp"
         android:layout_height="70dp"
-        android:id="@+id/button"
+        android:id="@+id/sound_button"
         android:background="@drawable/btm_press"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true" />
@@ -22,22 +22,21 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hold button to play continuously."
-        android:layout_marginTop="80dp"
-        android:textSize="20dp"
-        android:id="@+id/textView"
-        android:layout_below="@+id/button"
+        android:text="@string/first_instruction"
+        android:layout_marginBottom="66dp"
+        android:textSize="20sp"
+        android:id="@+id/textView2"
+        android:layout_above="@+id/sound_button"
         android:layout_centerHorizontal="true" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Press button to play sound."
-        android:layout_marginBottom="66dp"
-        android:textSize="20dp"
-        android:id="@+id/textView2"
-        android:layout_above="@+id/button"
+        android:text="@string/second_instruction"
+        android:layout_marginTop="80dp"
+        android:textSize="20sp"
+        android:id="@+id/textView"
+        android:layout_below="@+id/sound_button"
         android:layout_centerHorizontal="true" />
-
 
 </RelativeLayout>

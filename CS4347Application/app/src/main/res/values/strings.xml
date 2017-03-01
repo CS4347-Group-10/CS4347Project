@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">CS4347Application</string>
+    <string name="first_instruction">Press button to play sound.</string>
+    <string name="second_instruction">Hold button to play continuously.</string>
 </resources>
