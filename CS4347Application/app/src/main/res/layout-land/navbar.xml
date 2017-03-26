@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:weightSum="1">
+
+    <ToggleButton
+        android:id="@+id/mode_lock_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:checked="false"
+        android:textOff="@string/mode_lock_off"
+        android:textOn="@string/mode_lock_on"
+        android:layout_weight="0.33" />
+
+    <Button
+        android:id="@+id/piano_mode_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="PianoModeButton"
+        tools:text="Piano"
+        android:layout_weight="0.33" />
+
+    <Button
+        android:id="@+id/drums_mode_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="DrumsModeButton"
+        tools:text="Drums"
+        android:layout_weight="0.33" />
+</LinearLayout>

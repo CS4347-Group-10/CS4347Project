@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">CS4347 Application</string>
+    <string name="mode_lock_on">Locked</string>
+    <string name="mode_lock_off">Unlocked</string>
 </resources>

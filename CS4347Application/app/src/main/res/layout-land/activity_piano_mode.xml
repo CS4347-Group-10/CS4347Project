@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/steel_background"
+        android:rotation="180"
+        android:layout_toRightOf="@+id/imageView"
+        android:layout_toEndOf="@+id/imageView" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/black_and_white_gradient"
+        android:layout_toLeftOf="@+id/include"
+        android:layout_toStartOf="@+id/include"
+        android:id="@+id/imageView" />
+
+    <include
+        layout="@layout/navbar"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:id="@+id/include" />
+
+    <Button
+        android:id="@+id/record_button"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:background="@drawable/btn_press"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="211dp"
+        android:layout_marginStart="211dp"
+        android:layout_marginTop="18dp" />
+
+</RelativeLayout>
