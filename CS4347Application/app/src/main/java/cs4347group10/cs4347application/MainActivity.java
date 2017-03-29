@@ -39,11 +39,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         Button Act3Button = (Button)findViewById(R.id.button3);
         Button Act4Button = (Button)findViewById(R.id.button4);
 
-
         Act1Button.setOnClickListener(
                 new Button.OnClickListener(){
                     public void onClick(View v){
-                        Intent myIntent = new Intent(v.getContext(), Shaking.class );
+                        Intent myIntent = new Intent(v.getContext(), PianoMode.class );
                         startActivity(myIntent);
                     }
                 }

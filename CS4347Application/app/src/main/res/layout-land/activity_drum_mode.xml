@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/drum_mode"
+    tools:context="cs4347group10.cs4347application.DrumMode">
+
+    <ImageView
+        android:id="@+id/background_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_toLeftOf="@+id/navigation_bar"
+        android:layout_toStartOf="@+id/navigation_bar"
+        android:background="@android:color/transparent"
+        android:scaleType="fitXY"
+        app:srcCompat="@drawable/wood_gradient_after" />
+
+    <fragment
+        android:id="@+id/navigation_bar"
+        android:name="cs4347group10.cs4347application.NavbarFragment"
+        tools:layout="@layout/fragment_navbar"
+        android:layout_width="95dp"
+        android:layout_height="match_parent"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true" />
+
+    <ImageView
+        android:id="@+id/drum_image"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_toStartOf="@+id/navigation_bar"
+        android:background="@android:color/transparent"
+        android:scaleType="fitXY"
+        app:srcCompat="@drawable/hemi_drum"
+        android:layout_toLeftOf="@+id/navigation_bar" />
+
+    <ImageView
+        android:id="@+id/hit_effect2"
+        android:layout_width="190dp"
+        android:layout_height="100dp"
+        app:srcCompat="@drawable/hit_effect_right"
+        android:rotation="5"
+        android:layout_alignBottom="@+id/record_button"
+        android:layout_alignLeft="@+id/record_button"
+        android:layout_alignStart="@+id/record_button"
+        android:layout_marginLeft="45dp"
+        android:layout_marginStart="45dp" />
+
+    <ImageView
+        android:id="@+id/hit_effect1"
+        android:layout_width="190dp"
+        android:layout_height="100dp"
+        app:srcCompat="@drawable/hit_effect_left"
+        android:rotation="-5"
+        android:layout_alignBottom="@+id/record_button"
+        android:layout_alignRight="@+id/record_button"
+        android:layout_alignEnd="@+id/record_button"
+        android:layout_marginRight="45dp"
+        android:layout_marginEnd="45dp" />
+
+    <ImageView
+        android:id="@+id/drumstick1"
+        android:layout_width="350dp"
+        android:layout_height="100dp"
+        android:layout_above="@+id/record_button"
+        android:layout_centerHorizontal="true"
+        android:background="@android:color/transparent"
+        android:rotation="200"
+        android:scaleType="fitXY"
+        app:srcCompat="@drawable/drumstick_pic" />
+
+    <ImageView
+        android:id="@+id/drumstick2"
+        android:layout_width="350dp"
+        android:layout_height="100dp"
+        android:layout_above="@+id/hit_effect2"
+        android:layout_alignLeft="@+id/drumstick1"
+        android:layout_alignStart="@+id/drumstick1"
+        android:layout_marginBottom="25dp"
+        android:background="@android:color/transparent"
+        android:rotation="210"
+        android:scaleType="fitXY"
+        app:srcCompat="@drawable/drumstick_pic" />
+
+    <ImageButton
+        android:id="@+id/record_button"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="23dp"
+        android:layout_marginLeft="211dp"
+        android:layout_marginStart="211dp"
+        android:background="@android:color/transparent"
+        android:scaleType="fitXY"
+        app:srcCompat="@drawable/recording_btn" />
+
+</RelativeLayout>

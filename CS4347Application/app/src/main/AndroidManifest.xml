@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="cs4347group10.cs4347application">
 
     <application
@@ -15,7 +16,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Shaking"></activity>
+        <activity android:name=".Shaking" />
+        <activity android:name=".PianoMode" />
+        <activity android:name=".DrumMode" />
     </application>
+    <meta-data
+        android:name="android.support.VERSION"
+        android:value="25.3.1"
+        tools:replace="android:value" />
 
 </manifest>
