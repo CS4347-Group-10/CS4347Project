@@ -17,8 +17,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".Shaking" />
-        <activity android:name=".PianoMode" />
-        <activity android:name=".DrumMode" />
+        <activity android:name=".PianoMode" android:screenOrientation="landscape"/>
+        <activity android:name=".DrumMode" android:screenOrientation="landscape"/>
     </application>
     <meta-data
         android:name="android.support.VERSION"
