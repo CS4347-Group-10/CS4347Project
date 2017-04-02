@@ -19,13 +19,13 @@
         <ImageButton
             android:id="@+id/record_button"
             app:layout_aspectRatio="100%"
-            app:layout_heightPercent="30%"
+            app:layout_heightPercent="25%"
             android:background="@android:color/transparent"
             android:scaleType="fitXY"
             app:srcCompat="@drawable/recording_btn"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
-            app:layout_marginTopPercent="4%" />
+            app:layout_marginTopPercent="8%" />
 
         <ImageButton
             android:id="@+id/pianoKey1"
