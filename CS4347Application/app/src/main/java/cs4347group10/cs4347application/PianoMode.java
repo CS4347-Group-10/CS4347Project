@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 
 /**
@@ -26,10 +27,10 @@ public class PianoMode  extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_piano_mode);
 
-        ImageButton recordingBtn = (ImageButton) findViewById(R.id.record_button);
-        ImageButton pianoKey1 = (ImageButton) findViewById(R.id.pianoKey1);
-        ImageButton pianoKey2 = (ImageButton) findViewById(R.id.pianoKey2);
-        ImageButton pianoKey3 = (ImageButton) findViewById(R.id.pianoKey3);
+        Button recordingBtn = (Button) findViewById(R.id.record_button);
+        Button pianoKey1 = (Button) findViewById(R.id.pianoKey1);
+        Button pianoKey2 = (Button) findViewById(R.id.pianoKey2);
+        Button pianoKey3 = (Button) findViewById(R.id.pianoKey3);
         ImageButton pianoKey4 = (ImageButton) findViewById(R.id.pianoKey4);
         ImageButton pianoKey5 = (ImageButton) findViewById(R.id.pianoKey5);
         ImageButton pianoKey6 = (ImageButton) findViewById(R.id.pianoKey6);

@@ -24,6 +24,9 @@ import android.widget.Toast;
 import android.content.Context;
 import android.content.Intent;
 import android.media.SoundPool;
+import android.view.animation.Interpolator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.Animator;
 import java.util.*;
 
 /**
@@ -64,6 +67,7 @@ public class DrumMode extends AppCompatActivity implements SensorEventListener {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
                         //Start recording
+
                     case MotionEvent.ACTION_UP:
                         //Stop recording and process sound
                 }
@@ -84,18 +88,55 @@ public class DrumMode extends AppCompatActivity implements SensorEventListener {
 
         volumeSounds();
 
-
-
     }
 
-    // Not working - will change to an animation
-    public void drumHitAnimation(View view){
+    public class ReverseInterpolator implements Interpolator {
+        @Override
+        public float getInterpolation(float paramFloat) {
+            return Math.abs(paramFloat -1f);
+        }
+    }
+
+    public void drumHitAnimation() {
         // Rotate drumsticks
-        view.findViewById(R.id.drumstick1).setRotation(160);
-        view.findViewById(R.id.drumstick2).setRotation(150);
+        findViewById(R.id.drumstick1).animate()
+                .setStartDelay(0)
+                .setDuration(200)
+                .rotationBy(-40);
+        findViewById(R.id.drumstick2).animate()
+                .setStartDelay(0)
+                .setDuration(200)
+                .rotationBy(-60);
         // Make hit effect visible
-        view.findViewById(R.id.hit_effect1).setVisibility(View.VISIBLE);
-        view.findViewById(R.id.hit_effect2).setVisibility(View.VISIBLE);
+        findViewById(R.id.hit_effect1).setVisibility(View.VISIBLE);
+        findViewById(R.id.hit_effect2).setVisibility(View.VISIBLE);
+        findViewById(R.id.hit_effect1).animate()
+                .setStartDelay(200)
+                .setDuration(100)
+                .alpha(1.0f)
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        findViewById(R.id.drumstick1).animate().setInterpolator(new ReverseInterpolator());
+                        findViewById(R.id.drumstick2).animate().setInterpolator(new ReverseInterpolator());
+                        findViewById(R.id.hit_effect1).setVisibility(View.GONE);
+                        findViewById(R.id.hit_effect1).animate().setListener(null);
+                    }
+                });
+        findViewById(R.id.hit_effect2).animate()
+                .setStartDelay(200)
+                .setDuration(100)
+                .alpha(1.0f)
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        findViewById(R.id.hit_effect2).setVisibility(View.GONE);
+                        findViewById(R.id.hit_effect2).animate().setListener(null);
+                    }
+                });
+
     }
 
     /*public void initAudio() {
@@ -147,6 +188,7 @@ public class DrumMode extends AppCompatActivity implements SensorEventListener {
 
             if (shake_speed > SHAKETHRESHOLD) {
                 mySound.play(Shake_id, 1 / volume, 1 / volume, 1, 0, 1);
+                drumHitAnimation();
             }
 
         }

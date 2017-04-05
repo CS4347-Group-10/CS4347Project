@@ -14,20 +14,29 @@
         android:background="@drawable/wood_gradient_after"
         android:layout_toLeftOf="@+id/navigation_bar"
         android:layout_toStartOf="@+id/navigation_bar"
-        android:id="@+id/background_image">
+        android:id="@+id/background_image"
+        android:clickable="true" >
 
-        <ImageButton
+        <Button
             android:id="@+id/record_button"
             app:layout_aspectRatio="100%"
             app:layout_heightPercent="25%"
-            android:background="@android:color/transparent"
             android:scaleType="fitXY"
-            app:srcCompat="@drawable/recording_btn"
+            android:background="@drawable/recording_btn"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
             app:layout_marginTopPercent="8%" />
 
-        <ImageButton
+        <pl.droidsonroids.gif.GifImageView
+            android:id="@+id/animation_loading"
+            app:layout_aspectRatio="100%"
+            app:layout_heightPercent="29%"
+            android:layout_alignParentTop="true"
+            android:layout_centerInParent="true"
+            app:layout_marginTopPercent="5.9%"
+            android:background="@drawable/test" />
+
+        <Button
             android:id="@+id/pianoKey1"
             app:layout_widthPercent="11%"
             app:layout_heightPercent="40%"
@@ -36,31 +45,31 @@
             android:layout_alignParentStart="true"
             app:layout_marginBottomPercent="8%"
             app:layout_marginStartPercent="11%"
-            android:background="@android:color/transparent"
+            android:background="@drawable/pianokey1"
             android:scaleType="fitXY"
-            app:srcCompat="@drawable/piano_1st_key" />
+            android:clickable="true" />
 
-        <ImageButton
+        <Button
             android:id="@+id/pianoKey2"
             app:layout_widthPercent="11%"
             app:layout_heightPercent="40%"
             android:layout_alignTop="@+id/pianoKey1"
             android:layout_toEndOf="@+id/pianoKey1"
             android:layout_toRightOf="@+id/pianoKey1"
-            android:background="@android:color/transparent"
+            android:background="@drawable/pianokey2"
             android:scaleType="fitXY"
-            app:srcCompat="@drawable/piano_2nd_key" />
+            android:clickable="true"/>
 
-        <ImageButton
+        <Button
             android:id="@+id/pianoKey3"
             app:layout_widthPercent="11%"
             app:layout_heightPercent="40%"
             android:layout_alignTop="@+id/pianoKey2"
             android:layout_toEndOf="@+id/pianoKey2"
             android:layout_toRightOf="@+id/pianoKey2"
-            android:background="@android:color/transparent"
+            android:background="@drawable/pianokey4"
             android:scaleType="fitXY"
-            app:srcCompat="@drawable/piano_4th_key" />
+            android:clickable="true" />
 
         <ImageButton
             android:id="@+id/pianoKey4"
@@ -69,9 +78,10 @@
             android:layout_alignTop="@+id/pianoKey3"
             android:layout_toEndOf="@+id/pianoKey3"
             android:layout_toRightOf="@+id/pianoKey3"
-            android:background="@android:color/transparent"
+            android:background="@drawable/pianokey1"
             android:scaleType="fitXY"
-            app:srcCompat="@drawable/piano_1st_key" />
+            android:clickable="true"
+             />
 
         <ImageButton
             android:id="@+id/pianoKey5"
@@ -82,7 +92,8 @@
             android:layout_toRightOf="@+id/pianoKey4"
             android:background="@android:color/transparent"
             android:scaleType="fitXY"
-            app:srcCompat="@drawable/piano_2nd_key" />
+            android:clickable="true"
+            app:srcCompat="@drawable/pianokey2" />
 
         <ImageButton
             android:id="@+id/pianoKey6"
@@ -94,7 +105,8 @@
             android:background="@android:color/transparent"
             android:cropToPadding="false"
             android:scaleType="fitXY"
-            app:srcCompat="@drawable/piano_3rd_key" />
+            android:clickable="true"
+            app:srcCompat="@drawable/pianokey3" />
 
         <ImageButton
             android:id="@+id/pianoKey7"
@@ -105,7 +117,8 @@
             android:layout_toRightOf="@+id/pianoKey6"
             android:background="@android:color/transparent"
             android:scaleType="fitXY"
-            app:srcCompat="@drawable/piano_4th_key" />
+            android:clickable="true"
+            app:srcCompat="@drawable/pianokey4" />
 
         <ImageButton
             android:id="@+id/pianoKey8"
@@ -176,9 +189,6 @@
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:id="@+id/navigation_bar" />
-
-
-
 
 
 </RelativeLayout>
