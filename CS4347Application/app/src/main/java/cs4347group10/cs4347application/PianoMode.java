@@ -27,10 +27,10 @@ public class PianoMode  extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_piano_mode);
 
-        Button recordingBtn = (Button) findViewById(R.id.record_button);
-        Button pianoKey1 = (Button) findViewById(R.id.pianoKey1);
-        Button pianoKey2 = (Button) findViewById(R.id.pianoKey2);
-        Button pianoKey3 = (Button) findViewById(R.id.pianoKey3);
+        ImageButton recordingBtn = (ImageButton) findViewById(R.id.record_button);
+        ImageButton pianoKey1 = (ImageButton) findViewById(R.id.pianoKey1);
+        ImageButton pianoKey2 = (ImageButton) findViewById(R.id.pianoKey2);
+        ImageButton pianoKey3 = (ImageButton) findViewById(R.id.pianoKey3);
         ImageButton pianoKey4 = (ImageButton) findViewById(R.id.pianoKey4);
         ImageButton pianoKey5 = (ImageButton) findViewById(R.id.pianoKey5);
         ImageButton pianoKey6 = (ImageButton) findViewById(R.id.pianoKey6);
@@ -41,20 +41,23 @@ public class PianoMode  extends AppCompatActivity {
             public boolean onTouch(View view, MotionEvent event) {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-
+                        view.setPressed(true);
+                        break;
                     case MotionEvent.ACTION_UP:
-
+                        view.setPressed(false);
+                        findViewById(R.id.animation_loading).setVisibility(View.VISIBLE);
+                        break;
                 }
                 return true;
             }
         });
-        pianoKey1.setOnTouchListener(this.onTouchListener);
-        pianoKey2.setOnTouchListener(this.onTouchListener);
-        pianoKey3.setOnTouchListener(this.onTouchListener);
-        pianoKey4.setOnTouchListener(this.onTouchListener);
-        pianoKey5.setOnTouchListener(this.onTouchListener);
-        pianoKey6.setOnTouchListener(this.onTouchListener);
-        pianoKey7.setOnTouchListener(this.onTouchListener);
+        pianoKey1.setOnTouchListener(new PianoOnTouchListener(1));
+        pianoKey2.setOnTouchListener(new PianoOnTouchListener(2));
+        pianoKey3.setOnTouchListener(new PianoOnTouchListener(3));
+        pianoKey4.setOnTouchListener(new PianoOnTouchListener(4));
+        pianoKey5.setOnTouchListener(new PianoOnTouchListener(5));
+        pianoKey6.setOnTouchListener(new PianoOnTouchListener(6));
+        pianoKey7.setOnTouchListener(new PianoOnTouchListener(7));
 
         audioThread = new Thread() {
             public void run() {
@@ -67,17 +70,29 @@ public class PianoMode  extends AppCompatActivity {
         audioThread.start();
     }
 
-    public View.OnTouchListener onTouchListener = new View.OnTouchListener() {
+    public class PianoOnTouchListener implements View.OnTouchListener {
+        int soundIndex;
+
+        public PianoOnTouchListener(int i) {
+            soundIndex = i;
+        }
+
+        @Override
         public boolean onTouch(View view, MotionEvent event) {
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
+                    view.setPressed(true);
                     isRunning = true;
+                    break;
+                case MotionEvent.ACTION_CANCEL:
                 case MotionEvent.ACTION_UP:
+                    view.setPressed(false);
                     isRunning = false;
+                    break;
             }
             return true;
         }
-    };
+    }
 
     public void initAudio() {
         buffsize = AudioTrack.getMinBufferSize(samplingRate, AudioFormat.CHANNEL_OUT_MONO,

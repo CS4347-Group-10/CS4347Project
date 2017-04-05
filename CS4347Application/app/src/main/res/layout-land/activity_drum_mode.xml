@@ -46,7 +46,8 @@
             android:layout_centerInParent="true"
             android:layout_alignParentBottom="true"
             app:layout_marginBottomPercent="2.1%"
-            android:background="@drawable/loading" />
+            android:background="@drawable/loading"
+            android:visibility="gone"/>
 
         <ImageView
             android:id="@+id/hit_effect2"
