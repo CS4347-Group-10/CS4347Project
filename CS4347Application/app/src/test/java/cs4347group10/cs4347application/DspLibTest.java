@@ -2,6 +2,7 @@ package cs4347group10.cs4347application;
 
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 
@@ -107,5 +108,35 @@ public class DspLibTest {
                     + " exceeded threshold, check inverseFFT?",
                     Math.abs(timeDomainSamples[i] - regeneratedTimeDomainSamples[i]) > delta);
         }
+    }
+
+    @Test
+    public void envelopeTest() throws Exception {
+        //Error margin
+        double delta = 1e-15;
+
+        //Produce sample buffer
+        int steps = 10;
+        double magnitude = 1.0;
+        double[] sampleBuffer = new double[(2*steps)+1];
+        sampleBuffer[steps] = magnitude;
+        for (int i = 0; i < steps; i++){
+            sampleBuffer[i] = magnitude * ((double) i / steps);
+            sampleBuffer[(2*steps) - i] = sampleBuffer[i];
+        }
+
+        //Test with step size 1; every element is an anchor
+        double[] envelope = DspLib.characterizeWithEnvelope(sampleBuffer, 1);
+
+        //Envelope starts with 0.0 and ends with 0.0
+        assertEquals(0.0, envelope[0], delta);
+        assertEquals(0.0, envelope[envelope.length - 1], delta);
+
+        for (int i = 0; i < envelope.length; i ++){
+            assertNotNull(envelope[i]);
+            assertTrue(0.0 <= envelope[i] && envelope[i] <= magnitude);
+        }
+
+        //TODO, need moar test
     }
 }
