@@ -48,6 +48,9 @@ public class DspLib {
         return realOutput;
     }
 
+    /*
+    Computes the magnitude values of a complex FFT
+     */
     static public double [] magnitude(double fft[]) {
         double[] values = new double[fft.length / 2];
         for (int i = 0; i < fft.length / 2; i++) {
@@ -55,5 +58,44 @@ public class DspLib {
             values[i] = Math.sqrt((fft[idx] * fft[idx]) + (fft[idx + 1] * fft[idx + 1]));
         }
         return values;
+    }
+
+    static public double[] characterizeWithEnvelope(double[] buffer, int stepSize){
+
+        //Characterize using a number of key anchor points, determined by stepSize
+        double[] anchors = new double[(buffer.length / stepSize)+1];
+        double[] envelope = new double[buffer.length];
+        int firstElemAfterAnchor = (anchors.length-1) * stepSize;
+        int numElemsLeft = buffer.length - firstElemAfterAnchor;
+
+        //Assume 0, to enforce envelope characteristic of always starting and ending with 0 intensity
+        anchors[0] = 0;
+        double weight = (double)1/stepSize;
+        for (int i = 1; i < anchors.length; i++){
+            double runningAverage = 0;
+            for (int j = (i-1)*stepSize; j < i*stepSize; j++){
+                runningAverage += weight*Math.abs(anchors[j]);
+            }
+            anchors[i] = runningAverage;
+
+            //Special case: there are no leftover samples
+            if(i == anchors.length - 1){
+                if(numElemsLeft < 1) {
+                    anchors[i] = 0; //Then i is the last anchor, we force it to 0
+                }
+            }
+
+            int startIdx = (i-1)*stepSize;
+            for (int j = 0; j < stepSize; j++){
+                //Linear interpolate values between anchors
+                envelope[startIdx + j] = anchors[i-1] + ((double)j/stepSize)*(anchors[i] - anchors[i-1]);
+            }
+        }
+
+        for (int j = 0; j < numElemsLeft; j++) {
+            envelope[firstElemAfterAnchor + j] = ((double)1 - ((double) j / numElemsLeft)) * (anchors[anchors.length - 1]);
+        }
+
+        return envelope;
     }
 }

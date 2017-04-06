@@ -3,6 +3,7 @@ package cs4347group10.cs4347application;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
+import android.media.Image;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
@@ -24,6 +25,9 @@ import android.widget.Toast;
 import android.content.Context;
 import android.content.Intent;
 import android.media.SoundPool;
+import android.view.animation.Interpolator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.Animator;
 import java.util.*;
 
 /**
@@ -63,9 +67,15 @@ public class DrumMode extends AppCompatActivity implements SensorEventListener {
             public boolean onTouch(View view, MotionEvent event) {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
+                        view.setPressed(true);
+                        drumHitAnimation();
                         //Start recording
+                        break;
                     case MotionEvent.ACTION_UP:
+                        view.setPressed(false);
+                        findViewById(R.id.animation_loading).setVisibility(View.VISIBLE);
                         //Stop recording and process sound
+                        break;
                 }
                 return true;
             }
@@ -84,25 +94,64 @@ public class DrumMode extends AppCompatActivity implements SensorEventListener {
 
         volumeSounds();
 
+
     }
 
-    // Not working - will change to an animation
-    public void drumHitAnimation(View view){
+    public class ReverseInterpolator implements Interpolator {
+        @Override
+        public float getInterpolation(float paramFloat) {
+            return Math.abs(paramFloat -1f);
+        }
+    }
+
+    public void drumHitAnimation() {
+        final View dStick1 = findViewById(R.id.drumstick1);
+        final View dStick2 = findViewById(R.id.drumstick2);
+        final View hEffect1 = findViewById(R.id.hit_effect1);
+        final View hEffect2 = findViewById(R.id.hit_effect2);
         // Rotate drumsticks
-        view.findViewById(R.id.drumstick1).setRotation(160);
-        view.findViewById(R.id.drumstick2).setRotation(150);
+        dStick1.animate()
+                .setStartDelay(0)
+                .setDuration(200)
+                .rotationBy(-40);
+        dStick2.animate()
+                .setStartDelay(0)
+                .setDuration(200)
+                .rotationBy(-60);
         // Make hit effect visible
-        view.findViewById(R.id.hit_effect1).setVisibility(View.VISIBLE);
-        view.findViewById(R.id.hit_effect2).setVisibility(View.VISIBLE);
-    }
+        hEffect1.setVisibility(View.VISIBLE);
+        hEffect2.setVisibility(View.VISIBLE);
+        hEffect1.animate()
+                .setStartDelay(200)
+                .setDuration(100)
+                .alpha(1.0f)
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        dStick1.animate().setInterpolator(new ReverseInterpolator());
+                        dStick2.animate().setInterpolator(new ReverseInterpolator());
+                        dStick1.setRotation(200);
+                        dStick2.setRotation(210);
+                        hEffect1.setVisibility(View.GONE);
+                        hEffect1.animate().setListener(null);
+                    }
+                });
+        hEffect2.animate()
+                .setStartDelay(200)
+                .setDuration(100)
+                .alpha(1.0f)
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        hEffect2.setVisibility(View.GONE);
+                        hEffect2.animate().setListener(null);
+                    }
+                });
 
-    public void moveStick1 (){
-        View stick1 = findViewById(R.id.drumstick1);
-        ViewGroup.LayoutParams sizeRules = stick1.getLayoutParams();
-        sizeRules.width = 450;
-        sizeRules.height = 300;
-        stick1.setLayoutParams(sizeRules);
     }
+    
     /*public void initAudio() {
         buffsize = AudioTrack.getMinBufferSize(samplingRate, AudioFormat.CHANNEL_OUT_MONO,
                 AudioFormat.ENCODING_PCM_16BIT);
@@ -154,8 +203,11 @@ public class DrumMode extends AppCompatActivity implements SensorEventListener {
 
             System.out.println("volume = " + volume);
             System.out.println("speed = " + speed);
-            if(shake_speed > SHAKETHRESHOLD) {
-                mySound.play(Shake_id,1/volume ,1/volume, 1, 0, 1);
+
+
+            if (shake_speed > SHAKETHRESHOLD) {
+                mySound.play(Shake_id, 1 / volume, 1 / volume, 1, 0, 1);
+                drumHitAnimation();
             }
 
         }

@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 
 /**
@@ -20,6 +21,7 @@ public class PianoMode  extends AppCompatActivity {
     boolean isRunning = true;
     AudioTrack audioTrack;
     int buffsize;
+    byte[] soundBuffer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,43 +42,61 @@ public class PianoMode  extends AppCompatActivity {
             public boolean onTouch(View view, MotionEvent event) {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-
+                        view.setPressed(true);
+                        break;
                     case MotionEvent.ACTION_UP:
-
+                        view.setPressed(false);
+                        findViewById(R.id.animation_loading).setVisibility(View.VISIBLE);
+                        break;
                 }
                 return true;
             }
         });
-        pianoKey1.setOnTouchListener(this.onTouchListener);
-        pianoKey2.setOnTouchListener(this.onTouchListener);
-        pianoKey3.setOnTouchListener(this.onTouchListener);
-        pianoKey4.setOnTouchListener(this.onTouchListener);
-        pianoKey5.setOnTouchListener(this.onTouchListener);
-        pianoKey6.setOnTouchListener(this.onTouchListener);
-        pianoKey7.setOnTouchListener(this.onTouchListener);
+        pianoKey1.setOnTouchListener(new PianoOnTouchListener(0));
+        pianoKey2.setOnTouchListener(new PianoOnTouchListener(1));
+        pianoKey3.setOnTouchListener(new PianoOnTouchListener(2));
+        pianoKey4.setOnTouchListener(new PianoOnTouchListener(3));
+        pianoKey5.setOnTouchListener(new PianoOnTouchListener(4));
+        pianoKey6.setOnTouchListener(new PianoOnTouchListener(5));
+        pianoKey7.setOnTouchListener(new PianoOnTouchListener(6));
 
         audioThread = new Thread() {
             public void run() {
                 // set process priority
                 setPriority(Thread.MAX_PRIORITY);
                 initAudio();
+                soundBuffer = new byte[buffsize];
                 playAudio();
             }
         };
         audioThread.start();
     }
 
-    public View.OnTouchListener onTouchListener = new View.OnTouchListener() {
+    public class PianoOnTouchListener implements View.OnTouchListener {
+        int soundIndex;
+
+        public PianoOnTouchListener(int i) {
+            soundIndex = i;
+        }
+
+        @Override
         public boolean onTouch(View view, MotionEvent event) {
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
+                    view.setPressed(true);
                     isRunning = true;
+                    // Assign soundBuffer here
+                    // soundBuffer = ;
+                    break;
+                case MotionEvent.ACTION_CANCEL:
                 case MotionEvent.ACTION_UP:
+                    view.setPressed(false);
                     isRunning = false;
+                    break;
             }
             return true;
         }
-    };
+    }
 
     public void initAudio() {
         buffsize = AudioTrack.getMinBufferSize(samplingRate, AudioFormat.CHANNEL_OUT_MONO,
@@ -93,9 +113,6 @@ public class PianoMode  extends AppCompatActivity {
         audioTrack.play();
         byte[] sound = new byte[buffsize];
         while(isRunning){
-            for(int i=0; i < buffsize; i++){
-                // Get sound
-            }
             audioTrack.write(sound, 0, buffsize);
         }
         audioTrack.stop();
