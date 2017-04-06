@@ -10,35 +10,40 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.admin.recording.MainActivity">
 
+
     <Button
-        android:text="Record"
-        android:onClick="onRecord"
+        android:id="@+id/button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="75dp"
-        android:id="@+id/button"
+        android:layout_marginTop="20dp"
+        android:text="REC"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
 
     <Button
-        android:text="Stop"
-        android:onClick="onStop"
+        android:id="@+id/button1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="58dp"
-        android:id="@+id/button3"
-        android:layout_below="@+id/button"
-        android:layout_toEndOf="@+id/button" />
+        android:layout_alignBottom="@+id/button"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="15dp"
+        android:text="STOP REC" />
 
     <Button
-        android:text="Play"
-        android:onClick="onPlay"
+        android:id="@+id/button2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/button2"
-        android:layout_alignBaseline="@+id/button3"
-        android:layout_alignBottom="@+id/button3"
-        android:layout_alignParentStart="true"
-        android:layout_marginStart="63dp" />
+        android:layout_below="@+id/button"
+        android:layout_marginTop="50dp"
+        android:layout_toStartOf="@+id/button"
+        android:text="PLAY" />
+
+    <Button
+        android:id="@+id/button3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/button2"
+        android:layout_toEndOf="@+id/button"
+        android:text="STOP" />
 
 </RelativeLayout>
