@@ -10,6 +10,7 @@ package cs4347group10.cs4347application.Libraries;
 
 import java.lang.Math.*;
 import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
+import cs4347group10.cs4347application.pojo.Envelope;
 
 public class DspLib {
     static public double[] sineWave(int numOfSamples, double magnitude, double frequency, int samplingRate) {
@@ -60,21 +61,27 @@ public class DspLib {
         return values;
     }
 
-    static public double[] characterizeWithEnvelope(double[] buffer, int stepSize){
+    static public Envelope characterizeWithEnvelope(double[] buffer, int stepSize){
 
         //Characterize using a number of key anchor points, determined by stepSize
         double[] anchors = new double[(buffer.length / stepSize)+1];
-        double[] envelope = new double[buffer.length];
+        double largestIntensity = 0;
+        int anchorWithLargestIntensity = 0;
+
+        double[] window = new double[buffer.length];
         int firstElemAfterAnchor = (anchors.length-1) * stepSize;
         int numElemsLeft = buffer.length - firstElemAfterAnchor;
 
         //Assume 0, to enforce envelope characteristic of always starting and ending with 0 intensity
         anchors[0] = 0;
-        double weight = (double)1/stepSize;
+        double weight = (double) 1 / stepSize;
         for (int i = 1; i < anchors.length; i++){
             double runningAverage = 0;
+            double lambda;
+
+            //BUG!
             for (int j = (i-1)*stepSize; j < i*stepSize; j++){
-                runningAverage += weight*Math.abs(anchors[j]);
+                runningAverage += weight*Math.abs(buffer[j]);
             }
             anchors[i] = runningAverage;
 
@@ -85,17 +92,51 @@ public class DspLib {
                 }
             }
 
+            //Update largest intensity anchor
+            if(anchors[i] > largestIntensity){
+                anchorWithLargestIntensity = i;
+                largestIntensity = anchors[i];
+            }
+
             int startIdx = (i-1)*stepSize;
             for (int j = 0; j < stepSize; j++){
                 //Linear interpolate values between anchors
-                envelope[startIdx + j] = anchors[i-1] + ((double)j/stepSize)*(anchors[i] - anchors[i-1]);
+                window[startIdx + j] = anchors[i-1] + ((double)j/stepSize)*(anchors[i] - anchors[i-1]);
             }
         }
 
         for (int j = 0; j < numElemsLeft; j++) {
-            envelope[firstElemAfterAnchor + j] = ((double)1 - ((double) j / numElemsLeft)) * (anchors[anchors.length - 1]);
+            window[firstElemAfterAnchor + j] = ((double)1 - ((double) j / numElemsLeft)) * (anchors[anchors.length - 1]);
         }
 
-        return envelope;
+        //Compute start and end sustain
+        int startAnchorIdx = anchorWithLargestIntensity;
+        int endAnchorIdx = anchors.length - 1;
+        double smallestGradient = Double.MAX_VALUE;
+        for (int anchorStartId = anchorWithLargestIntensity; anchorStartId < anchors.length; anchorStartId++){
+            double avgGradient = 0;
+            for (int offset = 1; offset < anchors.length - anchorStartId; offset++) {
+                double lambda = (double) 1 / offset;
+                avgGradient = (1 - lambda) * avgGradient
+                        + lambda * (anchors[anchorStartId + offset] - anchors[anchorStartId + offset - 1]);
+
+                if(Math.abs(avgGradient) <  smallestGradient ){
+                    startAnchorIdx = anchorStartId;
+                    endAnchorIdx = anchorStartId+offset;
+                    smallestGradient = Math.abs(avgGradient);
+                }
+
+                //If the average gradient is somehow the same, but anchor distance is greater, it is preferred
+                if(Math.abs(avgGradient) ==  smallestGradient && (endAnchorIdx - startAnchorIdx) < offset){
+                    startAnchorIdx = anchorStartId;
+                    endAnchorIdx = anchorStartId+offset;
+                }
+            }
+        }
+
+        return new Envelope(window,                                 //Envelope filter
+                startAnchorIdx*stepSize,                            //id of where sustain starts
+                Math.min(endAnchorIdx*stepSize, buffer.length-1),   //id of where sustain ends (inclusive)
+                anchorWithLargestIntensity);                        //Peak of the signal (attack)
     }
 }
