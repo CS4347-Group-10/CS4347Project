@@ -8,18 +8,21 @@ public class Envelope{
     public double[] window;
     public int sustainStart;
     public int sustainEnd;
+    public int peak;
 
     private Envelope(){};
 
     public Envelope(int windowSize){
-        window = new double[windowSize];
-        sustainStart = 0;
-        sustainEnd = windowSize - 1;
+        this.window = new double[windowSize];
+        this.sustainStart = 0;
+        this.sustainEnd = windowSize - 1;
+        this.peak = sustainStart;
     }
 
-    public Envelope(double[] _window, int _sustainStart, int _sustainEnd){
-        window = _window;
-        sustainStart = _sustainStart;
-        sustainEnd = _sustainEnd;
+    public Envelope(double[] window, int sustainStart, int sustainEnd, int peak){
+        this.window = window;
+        this.sustainStart = sustainStart;
+        this.sustainEnd = sustainEnd;
+        this.peak = peak;
     }
 }
