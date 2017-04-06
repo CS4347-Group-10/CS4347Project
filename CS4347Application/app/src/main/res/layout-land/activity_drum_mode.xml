@@ -32,12 +32,12 @@
             android:id="@+id/record_button"
             app:layout_aspectRatio="100%"
             app:layout_heightPercent="25%"
-            android:layout_centerHorizontal="true"
-            android:layout_alignParentBottom="true"
             app:layout_marginBottomPercent="5%"
             android:background="@drawable/recording_btn"
             android:scaleType="fitXY"
-            android:clickable="true"/>
+            android:clickable="true"
+            android:layout_below="@+id/drumstick1"
+            android:layout_centerHorizontal="true" />
 
         <pl.droidsonroids.gif.GifImageView
             android:id="@+id/animation_loading"
@@ -101,7 +101,7 @@
             android:scaleType="fitXY"
             app:srcCompat="@drawable/drumstick_pic" />
 
-        </android.support.percent.PercentRelativeLayout>
+    </android.support.percent.PercentRelativeLayout>
 
     <fragment
         android:id="@+id/navigation_bar"
@@ -109,9 +109,9 @@
         tools:layout="@layout/fragment_navbar"
         android:layout_width="90dp"
         android:layout_height="match_parent"
-        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
-        android:layout_centerVertical="true" />
+        android:layout_alignParentEnd="true" />
 
 
 

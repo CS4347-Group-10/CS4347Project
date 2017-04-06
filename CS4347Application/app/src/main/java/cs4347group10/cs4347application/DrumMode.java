@@ -4,7 +4,9 @@ import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.media.Image;
+import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.widget.Button;
@@ -25,9 +27,13 @@ import android.widget.Toast;
 import android.content.Context;
 import android.content.Intent;
 import android.media.SoundPool;
+import android.media.SoundPool.OnLoadCompleteListener;
 import android.view.animation.Interpolator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.Animator;
+import android.widget.Button;
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -46,7 +52,7 @@ public class DrumMode extends AppCompatActivity implements SensorEventListener {
     private float x,y,z,last_x,last_y,last_z, shake_speed;
 
     SoundPool mySound;
-    int Shake_id, Shake_id2;
+    int Shake_id, Shake_id2, Shake_id3;
     private SensorManager mSensorManager;
 
     private ShakeEventListener mSensorListener;
@@ -55,12 +61,14 @@ public class DrumMode extends AppCompatActivity implements SensorEventListener {
     AudioManager audioManager;
     float curVolume, maxVolume, volume;
 
+    private MediaRecorder mediaRecorder;
+    private File RecordFile;
+    private MediaPlayer mPlayer = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_drum_mode);
-
         ImageButton recordingBtn = (ImageButton) findViewById(R.id.record_button);
         recordingBtn.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -68,12 +76,19 @@ public class DrumMode extends AppCompatActivity implements SensorEventListener {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
                         view.setPressed(true);
-                        drumHitAnimation();
+                        mediaRecorder = new MediaRecorder();
+                        resetRecorder();
+                        mediaRecorder.start();
+                        findViewById(R.id.animation_loading).setVisibility(View.VISIBLE);
                         //Start recording
                         break;
+                    case MotionEvent.ACTION_CANCEL:
                     case MotionEvent.ACTION_UP:
+                        mediaRecorder.stop();
+                        mediaRecorder.release();
+                        mediaRecorder = null;
                         view.setPressed(false);
-                        findViewById(R.id.animation_loading).setVisibility(View.VISIBLE);
+                        findViewById(R.id.animation_loading).setVisibility(View.INVISIBLE);
                         //Stop recording and process sound
                         break;
                 }
@@ -81,19 +96,40 @@ public class DrumMode extends AppCompatActivity implements SensorEventListener {
             }
         });
 
+        RecordFile = new File(Environment.getExternalStorageDirectory(), "drum_sound.wav");
+
         mySound = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
         Shake_id = mySound.load(this, R.raw.drumsound, 1);
-        Shake_id2 = mySound.load(this, R.raw.shake,1);
+        Shake_id2 = mySound.load(this, R.raw.shake, 1);
 
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        mSensorManager.registerListener(this,accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-        curTime = lastUpdate = (long)0.0;
-        x = y = z = last_x = last_y = last_z = (float)0.0;
+        mSensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+        curTime = lastUpdate = (long) 0.0;
+        x = y = z = last_x = last_y = last_z = (float) 0.0;
         mSensorListener = new ShakeEventListener();
+
 
         volumeSounds();
 
+    }
+
+    private void resetRecorder() {
+        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+        mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+
+        mediaRecorder.setAudioEncodingBitRate(16);
+        mediaRecorder.setAudioSamplingRate(44100);
+        mediaRecorder.setOutputFile(RecordFile.getAbsolutePath());
+
+        try {
+            mediaRecorder.prepare();
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public class ReverseInterpolator implements Interpolator {
@@ -150,6 +186,29 @@ public class DrumMode extends AppCompatActivity implements SensorEventListener {
                 });
 
     }
+    private void startPlaying() {
+        mPlayer = new MediaPlayer();
+        try {
+            mPlayer.setDataSource(RecordFile.getPath());
+            mPlayer.prepare();
+            mPlayer.start();
+        } catch (IOException e) {
+            System.out.print("\"Prepare\"");
+
+        }
+    }
+
+    public void loadSound (boolean loaded, int stream, float volume) {
+        mySound.setOnLoadCompleteListener(new OnLoadCompleteListener() {
+            @Override
+            public void onLoadComplete(SoundPool soundPool, int sampleId,
+                                       int status) {
+            }
+        });
+        if (loaded == true) {
+            mySound.play(stream, volume, volume, 1, 0, 1f);
+        }
+    }
 
     /*public void initAudio() {
         buffsize = AudioTrack.getMinBufferSize(samplingRate, AudioFormat.CHANNEL_OUT_MONO,
@@ -199,7 +258,12 @@ public class DrumMode extends AppCompatActivity implements SensorEventListener {
             System.out.println("speed = " + speed);
 
             if (shake_speed > SHAKETHRESHOLD) {
-                mySound.play(Shake_id, 1 / volume, 1 / volume, 1, 0, 1);
+                //mySound.play(Shake_id, 1 / volume, 1 / volume, 1, 0, 1);
+                //startPlaying();
+                int stream= mySound.load(RecordFile.getPath(), 1);
+                boolean loaded = true;
+                loadSound(loaded, stream, (1 / volume));
+                //mySound.play(Shake_id3, 1 / volume, 1 / volume, 1, 0, 1);
                 drumHitAnimation();
             }
 
@@ -212,6 +276,7 @@ public class DrumMode extends AppCompatActivity implements SensorEventListener {
         maxVolume = (float)audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
         volume = curVolume / maxVolume;
     }
+
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
