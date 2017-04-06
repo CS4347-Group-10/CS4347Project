@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         RecordButton = (Button) findViewById(R.id.button);
         RecordButton.setOnClickListener(this);
         RecordButton.setEnabled(true);
-        RecordButton.setText("rec");
+        RecordButton.setText("rec") ;
 
         StopRecButton = (Button) findViewById(R.id.button1);
         StopRecButton.setOnClickListener(this);
@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         stopPlayRecAudio.setText("stop audio");
 
         RecordFile = new File(Environment.getExternalStorageDirectory(),
-                "audiotest.3gp");
+                "audiotest.wav");
     }
 
     // this process must be done prior to the start of recording
