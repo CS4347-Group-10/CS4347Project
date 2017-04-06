@@ -82,7 +82,7 @@ public class DrumMode extends AppCompatActivity implements SensorEventListener {
         });
 
         mySound = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
-        Shake_id = mySound.load(this, R.raw.drumsound, 1);
+        Shake_id = mySound.load(this, R.raw.drum_2, 1);
         Shake_id2 = mySound.load(this, R.raw.shake,1);
 
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -151,7 +151,7 @@ public class DrumMode extends AppCompatActivity implements SensorEventListener {
                 });
 
     }
-    
+
     /*public void initAudio() {
         buffsize = AudioTrack.getMinBufferSize(samplingRate, AudioFormat.CHANNEL_OUT_MONO,
                 AudioFormat.ENCODING_PCM_16BIT);
