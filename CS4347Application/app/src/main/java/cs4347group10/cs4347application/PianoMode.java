@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
+import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -12,6 +14,8 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -30,6 +34,9 @@ public class PianoMode  extends AppCompatActivity {
     int btn = -1;
     Set<Integer> buttons = new HashSet<>();
 
+    private MediaRecorder mediaRecorder;
+    private File RecordFile;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,15 +50,24 @@ public class PianoMode  extends AppCompatActivity {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
                         view.setPressed(true);
+                        mediaRecorder = new MediaRecorder();
+                        resetRecorder();
+                        mediaRecorder.start();
+                        findViewById(R.id.animation_loading).setVisibility(View.VISIBLE);
                         break;
                     case MotionEvent.ACTION_UP:
+                        mediaRecorder.stop();
+                        mediaRecorder.release();
+                        mediaRecorder = null;
                         view.setPressed(false);
-                        findViewById(R.id.animation_loading).setVisibility(View.VISIBLE);
+                        findViewById(R.id.animation_loading).setVisibility(View.INVISIBLE);
                         break;
                 }
                 return true;
             }
         });
+
+        RecordFile = new File(Environment.getExternalStorageDirectory(), "piano_sound.wav");
 
         pianoLayout.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -216,6 +232,24 @@ public class PianoMode  extends AppCompatActivity {
             e.printStackTrace();
         }
         audioThread = null;
+    }
+
+    private void resetRecorder() {
+        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+        mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+
+        mediaRecorder.setAudioEncodingBitRate(16);
+        mediaRecorder.setAudioSamplingRate(44100);
+        mediaRecorder.setOutputFile(RecordFile.getAbsolutePath());
+
+        try {
+            mediaRecorder.prepare();
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }
