@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 
 import cs4347group10.cs4347application.Libraries.DspLib;
+import cs4347group10.cs4347application.pojo.Envelope;
 
 /**
  * Created by Rodson on 03/31/2017.
@@ -126,17 +127,21 @@ public class DspLibTest {
         }
 
         //Test with step size 1; every element is an anchor
-        double[] envelope = DspLib.characterizeWithEnvelope(sampleBuffer, 1);
+        Envelope envelope = DspLib.characterizeWithEnvelope(sampleBuffer, 1);
+        double[] window = envelope.window;
 
         //Envelope starts with 0.0 and ends with 0.0
-        assertEquals(0.0, envelope[0], delta);
-        assertEquals(0.0, envelope[envelope.length - 1], delta);
+        assertEquals(0.0, window[0], delta);
+        assertEquals(0.0, window[window.length - 1], delta);
 
-        for (int i = 0; i < envelope.length; i ++){
-            assertNotNull(envelope[i]);
-            assertTrue(0.0 <= envelope[i] && envelope[i] <= magnitude);
+        for (int i = 0; i < window.length; i ++){
+            assertNotNull(window[i]);
+            assertTrue(0.0 <= window[i] && window[i] <= magnitude);
         }
 
         //TODO, need moar test
+        assertTrue(0 <= envelope.sustainStart && envelope.sustainStart < window.length);
+        assertTrue(0 <= envelope.sustainEnd && envelope.sustainEnd < window.length);
+        //assertTrue(Integer.toString(envelope.sustainStart) + ">", envelope.sustainStart < envelope.sustainEnd);
     }
 }
