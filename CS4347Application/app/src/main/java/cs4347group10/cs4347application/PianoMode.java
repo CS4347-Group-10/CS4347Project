@@ -6,10 +6,14 @@ import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by Brendan on 3/29/2017.
@@ -18,10 +22,13 @@ import android.widget.ImageButton;
 public class PianoMode  extends AppCompatActivity {
     Thread audioThread;
     int samplingRate = 44100;
-    boolean isRunning = true;
+    boolean isRunning = false;
+    int duration = 5;
     AudioTrack audioTrack;
     int buffsize;
-    byte[] soundBuffer;
+    short[] soundBuffer = null;
+    int btn = -1;
+    Set<Integer> buttons = new HashSet<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,14 +36,7 @@ public class PianoMode  extends AppCompatActivity {
         setContentView(R.layout.activity_piano_mode);
 
         ImageButton recordingBtn = (ImageButton) findViewById(R.id.record_button);
-        ImageButton pianoKey1 = (ImageButton) findViewById(R.id.pianoKey1);
-        ImageButton pianoKey2 = (ImageButton) findViewById(R.id.pianoKey2);
-        ImageButton pianoKey3 = (ImageButton) findViewById(R.id.pianoKey3);
-        ImageButton pianoKey4 = (ImageButton) findViewById(R.id.pianoKey4);
-        ImageButton pianoKey5 = (ImageButton) findViewById(R.id.pianoKey5);
-        ImageButton pianoKey6 = (ImageButton) findViewById(R.id.pianoKey6);
-        ImageButton pianoKey7 = (ImageButton) findViewById(R.id.pianoKey7);
-
+        final RelativeLayout pianoLayout = (RelativeLayout) findViewById(R.id.piano_layout);
         recordingBtn.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent event) {
@@ -52,50 +52,117 @@ public class PianoMode  extends AppCompatActivity {
                 return true;
             }
         });
-        pianoKey1.setOnTouchListener(new PianoOnTouchListener(0));
-        pianoKey2.setOnTouchListener(new PianoOnTouchListener(1));
-        pianoKey3.setOnTouchListener(new PianoOnTouchListener(2));
-        pianoKey4.setOnTouchListener(new PianoOnTouchListener(3));
-        pianoKey5.setOnTouchListener(new PianoOnTouchListener(4));
-        pianoKey6.setOnTouchListener(new PianoOnTouchListener(5));
-        pianoKey7.setOnTouchListener(new PianoOnTouchListener(6));
 
-        audioThread = new Thread() {
-            public void run() {
-                // set process priority
-                setPriority(Thread.MAX_PRIORITY);
-                initAudio();
-                soundBuffer = new byte[buffsize];
-                playAudio();
+        pianoLayout.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent event) {
+                float posX;
+                float posY;
+                float width = pianoLayout.getWidth();
+                float height = pianoLayout.getHeight();
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        posX = event.getX();
+                        posY = event.getY();
+                        buttons.add(getButtonIndex(width, height, posX, posY));
+                        btn = getButtonIndex(width, height, posX, posY);
+                        setBtnPressed(btn, true);
+                        isRunning = true;
+                        playSound();
+                        //Log.d("DEBUG", "X: " + posX);
+                        //Log.d("DEBUG", "Y: " + posY);
+                        //Log.d("DEBUG", "Button is down");
+                        //Log.d("DEBUG", "isRunning = " + isRunning);
+                        break;
+                    case MotionEvent.ACTION_CANCEL:
+                    case MotionEvent.ACTION_UP:
+                        setBtnPressed(btn, false);
+                        isRunning = false;
+                        //Log.d("DEBUG", "Button is up");
+                        //Log.d("DEBUG", "isRunning = " + isRunning);
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        posX = event.getX();
+                        posY = event.getY();
+                        //Log.d("DEBUG", "X: " + posX);
+                        //Log.d("DEBUG", "Y: " + posY);
+                        int current = getButtonIndex(width, height, posX, posY);
+                        if(current >= 0) {
+                            if(btn != current) {
+                                setBtnPressed(btn, false);
+                                setBtnPressed(current, true);
+                                buttons.remove(btn);
+                                buttons.add(current);
+                                btn = current;
+                            }
+                            //playSound(btn);
+                        } else {
+                            setBtnPressed(btn, false);
+                            isRunning = false;
+                        }
+                        break;
+                }
+                return true;
             }
-        };
-        audioThread.start();
+        });
+        initAudio();
+        soundBuffer = new short[buffsize];
     }
 
-    public class PianoOnTouchListener implements View.OnTouchListener {
-        int soundIndex;
-
-        public PianoOnTouchListener(int i) {
-            soundIndex = i;
-        }
-
-        @Override
-        public boolean onTouch(View view, MotionEvent event) {
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    view.setPressed(true);
-                    isRunning = true;
-                    // Assign soundBuffer here
-                    // soundBuffer = ;
-                    break;
-                case MotionEvent.ACTION_CANCEL:
-                case MotionEvent.ACTION_UP:
-                    view.setPressed(false);
-                    isRunning = false;
-                    break;
+    public int getButtonIndex(float width, float height, float x, float y) {
+        int i = -1;
+        float hFrac = y/height;
+        float wFrac = x/width;
+        if(hFrac > 0.4){
+            i = (int)(wFrac * 7);
+            if(i == 7){
+                i--;
+            } else if(i < 0){
+                i = 0;
             }
-            return true;
         }
+        return i;
+    }
+
+    public void setBtnPressed(int index, boolean isPressed){
+        switch(index){
+            case 0:
+                findViewById(R.id.pianoKey1).setPressed(isPressed);
+                break;
+            case 1:
+                findViewById(R.id.pianoKey2).setPressed(isPressed);
+                break;
+            case 2:
+                findViewById(R.id.pianoKey3).setPressed(isPressed);
+                break;
+            case 3:
+                findViewById(R.id.pianoKey4).setPressed(isPressed);
+                break;
+            case 4:
+                findViewById(R.id.pianoKey5).setPressed(isPressed);
+                break;
+            case 5:
+                findViewById(R.id.pianoKey6).setPressed(isPressed);
+                break;
+            case 6:
+                findViewById(R.id.pianoKey7).setPressed(isPressed);
+                break;
+            default:
+                break;
+        }
+    }
+
+    public short[] getSound() {
+        short[] res = new short[buffsize];
+        int amp = 10000;
+        double twopi = 8.*Math.atan(1.);
+        double fr = 440 + 440 * btn/7.0;
+        double ph = 0.0;
+        for(int i = 0; i < buffsize; i++) {
+            res[i] = (short) (amp*Math.sin(ph));
+            ph += twopi*fr/samplingRate;
+        }
+        return res;
     }
 
     public void initAudio() {
@@ -109,20 +176,42 @@ public class PianoMode  extends AppCompatActivity {
                 AudioTrack.MODE_STREAM);
     }
 
-    public void playAudio() {
-        audioTrack.play();
-        byte[] sound = new byte[buffsize];
-        while(isRunning){
-            audioTrack.write(sound, 0, buffsize);
-        }
-        audioTrack.stop();
+    public void playSound() {
+        audioThread = new Thread() {
+            public void run() {
+                // set process priority
+                //setPriority(Thread.MAX_PRIORITY);
+                short samples[] = new short[buffsize];
+                int amp = 10000;
+                double twopi = 8.*Math.atan(1.);
+                double fr = 440.f;
+                double ph = 0.0;
+                // start audio
+                audioTrack.play();
+                // synthesis loop
+                while(isRunning){
+                    fr =  440 + 440*btn/7.0;
+                    for(int i=0; i < buffsize; i++){
+                        samples[i] = (short) (amp*Math.sin(ph));
+                        ph += twopi*fr/samplingRate;
+                    }
+                    samples = getSound();
+                    audioTrack.write(samples, 0, buffsize);
+                }
+                audioTrack.pause();
+                audioTrack.flush();
+            }
+        };
+        audioThread.start();
     }
 
     public void onDestroy(){
         super.onDestroy();
         isRunning = false;
         try {
-            audioThread.join();
+            if(audioThread != null) {
+                audioThread.join();
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
