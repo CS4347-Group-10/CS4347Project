@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         RecordButton = (Button) findViewById(R.id.button);
         RecordButton.setOnClickListener(this);
         RecordButton.setEnabled(true);
-        RecordButton.setText("rec");
+        RecordButton.setText("rec") ;
 
         StopRecButton = (Button) findViewById(R.id.button1);
         StopRecButton.setOnClickListener(this);
