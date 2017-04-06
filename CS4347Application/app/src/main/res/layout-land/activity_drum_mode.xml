@@ -31,37 +31,49 @@
         <ImageButton
             android:id="@+id/record_button"
             app:layout_aspectRatio="100%"
-            app:layout_heightPercent="30%"
+            app:layout_heightPercent="25%"
             android:layout_centerHorizontal="true"
             android:layout_alignParentBottom="true"
             app:layout_marginBottomPercent="5%"
-            android:background="@android:color/transparent"
+            android:background="@drawable/recording_btn"
             android:scaleType="fitXY"
-            app:srcCompat="@drawable/recording_btn" />
+            android:clickable="true"/>
+
+        <pl.droidsonroids.gif.GifImageView
+            android:id="@+id/animation_loading"
+            app:layout_aspectRatio="100%"
+            app:layout_heightPercent="31%"
+            android:layout_centerInParent="true"
+            android:layout_alignParentBottom="true"
+            app:layout_marginBottomPercent="2.1%"
+            android:background="@drawable/loading"
+            android:visibility="gone"/>
 
         <ImageView
             android:id="@+id/hit_effect2"
-            app:layout_widthPercent="40%"
-            app:layout_heightPercent="30%"
-            app:srcCompat="@drawable/hit_effect_right"
-            android:rotation="5"
             android:layout_alignBottom="@+id/record_button"
             android:layout_alignLeft="@+id/record_button"
             android:layout_alignStart="@+id/record_button"
+            android:rotation="5"
+            android:visibility="invisible"
+            app:layout_heightPercent="30%"
             app:layout_marginBottomPercent="5%"
-            app:layout_marginStartPercent="13%" />
+            app:layout_marginStartPercent="13%"
+            app:layout_widthPercent="40%"
+            app:srcCompat="@drawable/hit_effect_right" />
 
         <ImageView
             android:id="@+id/hit_effect1"
-            app:layout_widthPercent="40%"
-            app:layout_heightPercent="30%"
-            app:srcCompat="@drawable/hit_effect_left"
-            android:rotation="-5"
             android:layout_alignBottom="@+id/record_button"
-            android:layout_alignRight="@+id/record_button"
             android:layout_alignEnd="@+id/record_button"
+            android:layout_alignRight="@+id/record_button"
+            android:rotation="-5"
+            android:visibility="invisible"
+            app:layout_heightPercent="30%"
             app:layout_marginBottomPercent="5%"
-            app:layout_marginEndPercent="13%" />
+            app:layout_marginEndPercent="13%"
+            app:layout_widthPercent="40%"
+            app:srcCompat="@drawable/hit_effect_left" />
 
         <ImageView
             android:id="@+id/drumstick1"
