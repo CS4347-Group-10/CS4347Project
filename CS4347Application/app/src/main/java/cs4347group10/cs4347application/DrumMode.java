@@ -84,8 +84,6 @@ public class DrumMode extends AppCompatActivity implements SensorEventListener {
 
         volumeSounds();
 
-
-
     }
 
     // Not working - will change to an animation
@@ -98,6 +96,13 @@ public class DrumMode extends AppCompatActivity implements SensorEventListener {
         view.findViewById(R.id.hit_effect2).setVisibility(View.VISIBLE);
     }
 
+    public void moveStick1 (){
+        View stick1 = findViewById(R.id.drumstick1);
+        ViewGroup.LayoutParams sizeRules = stick1.getLayoutParams();
+        sizeRules.width = 450;
+        sizeRules.height = 300;
+        stick1.setLayoutParams(sizeRules);
+    }
     /*public void initAudio() {
         buffsize = AudioTrack.getMinBufferSize(samplingRate, AudioFormat.CHANNEL_OUT_MONO,
                 AudioFormat.ENCODING_PCM_16BIT);
@@ -110,10 +115,10 @@ public class DrumMode extends AppCompatActivity implements SensorEventListener {
     }*/
 
     @Override
-    public  void onSensorChanged(SensorEvent event) {
+    public  void onSensorChanged(SensorEvent event){
         long curTime = System.currentTimeMillis();
 
-        if ((curTime - lastUpdate) > 200) {
+        if ((curTime - lastUpdate)> 200) {
             long diffTime = (curTime - lastUpdate);
             lastUpdate = curTime;
 
@@ -124,33 +129,39 @@ public class DrumMode extends AppCompatActivity implements SensorEventListener {
             float speed = Math.abs(x + y + z - last_x - last_y - last_z) / diffTime * 10000;
             shake_speed = speed;
 
-            float volume = (30 - (int) (speed / 100)) % 30;
+            float volume = (30-(int)(speed / 100))%30;
 
-            volume = (float) (volume / 30.0) * 5;
+            volume = (float)(volume / 30.0) * 5;
 
-            if (volume <= 1) {
+            if(volume <= 1){
                 volume = 1;
-            } else if (volume > 1 && volume <= 2) {
+            }
+            else if (volume > 1 && volume <= 2){
                 volume = 1;
-            } else if (volume > 2 && volume <= 3) {
+            }
+            else if(volume > 2 && volume <= 3){
                 volume = 3;
-            } else if (volume > 3 && volume <= 4) {
+            }
+            else if(volume > 3 && volume <= 4){
                 volume = 5;
-            } else if (volume > 4 && volume <= 5) {
+            }
+            else if(volume > 4 && volume <= 5){
                 volume = 5;
-            } else {
-                mySound.play(Shake_id2, 1, 1, 1, 0, 1);
+            }
+            else {
+                mySound.play(Shake_id2,1,1,1,0,1);
             }
 
             System.out.println("volume = " + volume);
             System.out.println("speed = " + speed);
-
-            if (shake_speed > SHAKETHRESHOLD) {
-                mySound.play(Shake_id, 1 / volume, 1 / volume, 1, 0, 1);
+            if(shake_speed > SHAKETHRESHOLD) {
+                mySound.play(Shake_id,1/volume ,1/volume, 1, 0, 1);
             }
 
         }
+
     }
+
 
     protected void volumeSounds(){
         audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
