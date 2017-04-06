@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         stopPlayRecAudio.setText("stop audio");
 
         RecordFile = new File(Environment.getExternalStorageDirectory(),
-                "audiotest.3gp");
+                "audiotest.wav");
     }
 
     // this process must be done prior to the start of recording
