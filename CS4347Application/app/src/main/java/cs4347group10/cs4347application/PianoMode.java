@@ -21,6 +21,7 @@ public class PianoMode  extends AppCompatActivity {
     boolean isRunning = true;
     AudioTrack audioTrack;
     int buffsize;
+    byte[] soundBuffer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,19 +52,20 @@ public class PianoMode  extends AppCompatActivity {
                 return true;
             }
         });
-        pianoKey1.setOnTouchListener(new PianoOnTouchListener(1));
-        pianoKey2.setOnTouchListener(new PianoOnTouchListener(2));
-        pianoKey3.setOnTouchListener(new PianoOnTouchListener(3));
-        pianoKey4.setOnTouchListener(new PianoOnTouchListener(4));
-        pianoKey5.setOnTouchListener(new PianoOnTouchListener(5));
-        pianoKey6.setOnTouchListener(new PianoOnTouchListener(6));
-        pianoKey7.setOnTouchListener(new PianoOnTouchListener(7));
+        pianoKey1.setOnTouchListener(new PianoOnTouchListener(0));
+        pianoKey2.setOnTouchListener(new PianoOnTouchListener(1));
+        pianoKey3.setOnTouchListener(new PianoOnTouchListener(2));
+        pianoKey4.setOnTouchListener(new PianoOnTouchListener(3));
+        pianoKey5.setOnTouchListener(new PianoOnTouchListener(4));
+        pianoKey6.setOnTouchListener(new PianoOnTouchListener(5));
+        pianoKey7.setOnTouchListener(new PianoOnTouchListener(6));
 
         audioThread = new Thread() {
             public void run() {
                 // set process priority
                 setPriority(Thread.MAX_PRIORITY);
                 initAudio();
+                soundBuffer = new byte[buffsize];
                 playAudio();
             }
         };
@@ -83,6 +85,8 @@ public class PianoMode  extends AppCompatActivity {
                 case MotionEvent.ACTION_DOWN:
                     view.setPressed(true);
                     isRunning = true;
+                    // Assign soundBuffer here
+                    // soundBuffer = ;
                     break;
                 case MotionEvent.ACTION_CANCEL:
                 case MotionEvent.ACTION_UP:
@@ -109,9 +113,6 @@ public class PianoMode  extends AppCompatActivity {
         audioTrack.play();
         byte[] sound = new byte[buffsize];
         while(isRunning){
-            for(int i=0; i < buffsize; i++){
-                // Get sound
-            }
             audioTrack.write(sound, 0, buffsize);
         }
         audioTrack.stop();
