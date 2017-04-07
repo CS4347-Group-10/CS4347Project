@@ -262,18 +262,18 @@ public class DspLib {
         return (double) maxIndex/2;
     }
 
-    static public float[] distortSound(double[] data){
-        double[] firstPart = new double[data.length/2];
-        double[] secondPart = new double[data.length/2];
-        System.arraycopy(data,0,firstPart,0,data.length/2);
-        System.arraycopy(data,data.length/2,secondPart,0,data.length/2);
-        float[] distortFirst = shiftSound(firstPart,1.5);
-        float[] distortSecond = shiftSound(secondPart,0.75);
-
-        float[] result = new float[data.length];
-        System.arraycopy(distortFirst,0,result,0,data.length/2);
-        System.arraycopy(distortSecond,0,result,data.length/2,data.length/2);
+    static public float[] distortSound(double[] data,int repeats){
+        double[]temp = new double[data.length/repeats];
+        float[] distorted = new float[data.length/repeats];
+        float[] result= new float[data.length];
+        for(int i =0;i<repeats;i++){
+            double factor = 1.5-i%2*0.75;
+            System.arraycopy(data,i*data.length/repeats,temp,0,data.length/repeats);
+            distorted=shiftSound(temp,factor);
+            System.arraycopy(distorted,0,result,i*data.length/repeats,data.length/repeats);
+        }
         return result;
 
     }
+
 }
