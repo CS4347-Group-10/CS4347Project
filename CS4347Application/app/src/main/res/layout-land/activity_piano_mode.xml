@@ -28,6 +28,19 @@
             android:layout_centerHorizontal="true"
             app:layout_marginTopPercent="8%" />
 
+        <TextView
+            android:id="@+id/octave_number"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/record_button"
+            android:layout_alignLeft="@+id/piano_layout"
+            android:background="#80FFFFFF"
+            android:ems="10"
+            android:text="1"
+            android:gravity="center"
+            android:textSize="30sp"
+            app:layout_heightPercent="20%"
+            app:layout_widthPercent="10%" />
+
         <pl.droidsonroids.gif.GifImageView
             android:id="@+id/animation_loading"
             app:layout_aspectRatio="100%"
@@ -38,150 +51,151 @@
             android:background="@drawable/test"
             android:visibility="gone"/>
 
-        <ImageButton
-            android:id="@+id/pianoKey1"
-            app:layout_widthPercent="11%"
-            app:layout_heightPercent="40%"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
+        <android.support.percent.PercentRelativeLayout
+            android:id="@+id/piano_layout"
+            app:layout_widthPercent="80%"
+            app:layout_heightPercent="55%"
             app:layout_marginBottomPercent="8%"
-            app:layout_marginStartPercent="11%"
-            android:background="@android:color/transparent"
-            app:srcCompat="@drawable/pianokey1"
-            android:scaleType="fitXY"
-            android:clickable="true" />
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:clickable="true">
 
-        <ImageButton
-            android:id="@+id/pianoKey2"
-            app:layout_widthPercent="11%"
-            app:layout_heightPercent="40%"
-            android:layout_alignTop="@+id/pianoKey1"
-            android:layout_toEndOf="@+id/pianoKey1"
-            android:layout_toRightOf="@+id/pianoKey1"
-            android:background="@android:color/transparent"
-            app:srcCompat="@drawable/pianokey2"
-            android:scaleType="fitXY"
-            android:clickable="true"/>
+            <ImageView
+                android:id="@+id/pianoKey1"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:background="@android:color/transparent"
+                android:scaleType="fitXY"
+                app:layout_heightPercent="90%"
+                app:layout_widthPercent="14.2%"
+                app:srcCompat="@drawable/pianokey1" />
 
-        <ImageButton
-            android:id="@+id/pianoKey3"
-            app:layout_widthPercent="11%"
-            app:layout_heightPercent="40%"
-            android:layout_alignTop="@+id/pianoKey2"
-            android:layout_toEndOf="@+id/pianoKey2"
-            android:layout_toRightOf="@+id/pianoKey2"
-            android:background="@android:color/transparent"
-            app:srcCompat="@drawable/pianokey4"
-            android:scaleType="fitXY"
-            android:clickable="true" />
+            <ImageView
+                android:id="@+id/pianoKey2"
+                android:layout_alignTop="@+id/pianoKey1"
+                android:layout_toEndOf="@+id/pianoKey1"
+                android:layout_toRightOf="@+id/pianoKey1"
+                android:background="@android:color/transparent"
+                android:scaleType="fitXY"
+                app:layout_heightPercent="90%"
+                app:layout_widthPercent="14.2%"
+                app:srcCompat="@drawable/pianokey2" />
 
-        <ImageButton
-            android:id="@+id/pianoKey4"
-            app:layout_widthPercent="11%"
-            app:layout_heightPercent="40%"
-            android:layout_alignTop="@+id/pianoKey3"
-            android:layout_toEndOf="@+id/pianoKey3"
-            android:layout_toRightOf="@+id/pianoKey3"
-            android:background="@android:color/transparent"
-            android:scaleType="fitXY"
-            android:clickable="true"
-            app:srcCompat="@drawable/pianokey1" />
+            <ImageView
+                android:id="@+id/pianoKey3"
+                app:layout_widthPercent="14.2%"
+                app:layout_heightPercent="90%"
+                android:layout_alignTop="@+id/pianoKey2"
+                android:layout_toEndOf="@+id/pianoKey2"
+                android:layout_toRightOf="@+id/pianoKey2"
+                android:background="@android:color/transparent"
+                app:srcCompat="@drawable/pianokey4"
+                android:scaleType="fitXY" />
 
-        <ImageButton
-            android:id="@+id/pianoKey5"
-            app:layout_widthPercent="11%"
-            app:layout_heightPercent="40%"
-            android:layout_alignTop="@+id/pianoKey4"
-            android:layout_toEndOf="@+id/pianoKey4"
-            android:layout_toRightOf="@+id/pianoKey4"
-            android:background="@android:color/transparent"
-            android:scaleType="fitXY"
-            android:clickable="true"
-            app:srcCompat="@drawable/pianokey2" />
+            <ImageView
+                android:id="@+id/pianoKey4"
+                app:layout_widthPercent="14.2%"
+                app:layout_heightPercent="90%"
+                android:layout_alignTop="@+id/pianoKey3"
+                android:layout_toEndOf="@+id/pianoKey3"
+                android:layout_toRightOf="@+id/pianoKey3"
+                android:background="@android:color/transparent"
+                android:scaleType="fitXY"
+                app:srcCompat="@drawable/pianokey1" />
 
-        <ImageButton
-            android:id="@+id/pianoKey6"
-            app:layout_widthPercent="11%"
-            app:layout_heightPercent="40%"
-            android:layout_alignTop="@+id/pianoKey5"
-            android:layout_toEndOf="@+id/pianoKey5"
-            android:layout_toRightOf="@+id/pianoKey5"
-            android:background="@android:color/transparent"
-            android:cropToPadding="false"
-            android:scaleType="fitXY"
-            android:clickable="true"
-            app:srcCompat="@drawable/pianokey3" />
+            <ImageView
+                android:id="@+id/pianoKey5"
+                app:layout_widthPercent="14.2%"
+                app:layout_heightPercent="90%"
+                android:layout_alignTop="@+id/pianoKey4"
+                android:layout_toEndOf="@+id/pianoKey4"
+                android:layout_toRightOf="@+id/pianoKey4"
+                android:background="@android:color/transparent"
+                android:scaleType="fitXY"
+                app:srcCompat="@drawable/pianokey2" />
 
-        <ImageButton
-            android:id="@+id/pianoKey7"
-            app:layout_widthPercent="11%"
-            app:layout_heightPercent="40%"
-            android:layout_alignTop="@+id/pianoKey6"
-            android:layout_toEndOf="@+id/pianoKey6"
-            android:layout_toRightOf="@+id/pianoKey6"
-            android:background="@android:color/transparent"
-            android:scaleType="fitXY"
-            android:clickable="true"
-            app:srcCompat="@drawable/pianokey4" />
+            <ImageView
+                android:id="@+id/pianoKey6"
+                app:layout_widthPercent="14.2%"
+                app:layout_heightPercent="90%"
+                android:layout_alignTop="@+id/pianoKey5"
+                android:layout_toEndOf="@+id/pianoKey5"
+                android:layout_toRightOf="@+id/pianoKey5"
+                android:background="@android:color/transparent"
+                android:cropToPadding="false"
+                android:scaleType="fitXY"
+                app:srcCompat="@drawable/pianokey3" />
 
-        <ImageButton
-            android:id="@+id/pianoKey8"
-            app:layout_widthPercent="9%"
-            app:layout_heightPercent="35%"
-            android:background="@android:color/transparent"
-            android:scaleType="fitXY"
-            app:srcCompat="@drawable/piano_black_1_key"
-            app:layout_marginStartPercent="16%"
-            app:layout_marginTopPercent="39%" />
+            <ImageView
+                android:id="@+id/pianoKey7"
+                app:layout_widthPercent="14.2%"
+                app:layout_heightPercent="90%"
+                android:layout_alignTop="@+id/pianoKey6"
+                android:layout_toEndOf="@+id/pianoKey6"
+                android:layout_toRightOf="@+id/pianoKey6"
+                android:background="@android:color/transparent"
+                android:scaleType="fitXY"
+                app:srcCompat="@drawable/pianokey4" />
 
-        <ImageButton
-            android:id="@+id/pianoKey9"
-            app:layout_widthPercent="10%"
-            app:layout_heightPercent="35%"
-            android:background="@android:color/transparent"
-            android:scaleType="fitXY"
-            app:srcCompat="@drawable/piano_black_2_key"
-            android:layout_alignTop="@+id/pianoKey8"
-            android:layout_toRightOf="@+id/pianoKey8"
-            android:layout_toEndOf="@+id/pianoKey8"
-            app:layout_marginStartPercent="4%" />
+            <ImageView
+                android:id="@+id/pianoKey8"
+                app:layout_widthPercent="11%"
+                app:layout_heightPercent="60%"
+                android:background="@android:color/transparent"
+                android:scaleType="fitXY"
+                app:srcCompat="@drawable/piano_black_1_key"
+                app:layout_marginStartPercent="6%" />
 
-        <ImageButton
-            android:id="@+id/pianoKey10"
-            app:layout_widthPercent="9%"
-            app:layout_heightPercent="35%"
-            android:background="@android:color/transparent"
-            android:scaleType="fitXY"
-            app:srcCompat="@drawable/piano_black_2_key"
-            android:layout_alignTop="@+id/pianoKey9"
-            android:layout_toRightOf="@+id/pianoKey9"
-            android:layout_toEndOf="@+id/pianoKey9"
-            app:layout_marginStartPercent="10%" />
+            <ImageView
+                android:id="@+id/pianoKey9"
+                app:layout_widthPercent="12%"
+                app:layout_heightPercent="60%"
+                android:background="@android:color/transparent"
+                android:scaleType="fitXY"
+                app:srcCompat="@drawable/piano_black_2_key"
+                android:layout_alignTop="@+id/pianoKey8"
+                android:layout_toRightOf="@+id/pianoKey8"
+                android:layout_toEndOf="@+id/pianoKey8"
+                app:layout_marginStartPercent="7%" />
 
-        <ImageButton
-            android:id="@+id/pianoKey11"
-            app:layout_widthPercent="9%"
-            app:layout_heightPercent="35%"
-            android:background="@android:color/transparent"
-            android:scaleType="fitXY"
-            app:srcCompat="@drawable/piano_black_3_key"
-            android:layout_alignTop="@+id/pianoKey10"
-            android:layout_toRightOf="@+id/pianoKey10"
-            android:layout_toEndOf="@+id/pianoKey10"
-            app:layout_marginStartPercent="4%" />
+            <ImageView
+                android:id="@+id/pianoKey10"
+                app:layout_widthPercent="10%"
+                app:layout_heightPercent="60%"
+                android:background="@android:color/transparent"
+                android:scaleType="fitXY"
+                app:srcCompat="@drawable/piano_black_2_key"
+                android:layout_alignTop="@+id/pianoKey9"
+                android:layout_toRightOf="@+id/pianoKey9"
+                android:layout_toEndOf="@+id/pianoKey9"
+                app:layout_marginStartPercent="14%" />
 
-        <ImageButton
-            android:id="@+id/pianoKey12"
-            app:layout_widthPercent="9%"
-            app:layout_heightPercent="35%"
-            android:background="@android:color/transparent"
-            android:scaleType="fitXY"
-            app:srcCompat="@drawable/piano_black_3_key"
-            android:layout_alignTop="@+id/pianoKey11"
-            android:layout_toRightOf="@+id/pianoKey11"
-            android:layout_toEndOf="@+id/pianoKey11"
-            app:layout_marginStartPercent="3%" />
+            <ImageView
+                android:id="@+id/pianoKey11"
+                app:layout_widthPercent="10%"
+                app:layout_heightPercent="60%"
+                android:background="@android:color/transparent"
+                android:scaleType="fitXY"
+                app:srcCompat="@drawable/piano_black_3_key"
+                android:layout_alignTop="@+id/pianoKey10"
+                android:layout_toRightOf="@+id/pianoKey10"
+                android:layout_toEndOf="@+id/pianoKey10"
+                app:layout_marginStartPercent="7%" />
+
+            <ImageView
+                android:id="@+id/pianoKey12"
+                app:layout_widthPercent="10%"
+                app:layout_heightPercent="60%"
+                android:background="@android:color/transparent"
+                android:scaleType="fitXY"
+                app:srcCompat="@drawable/piano_black_3_key"
+                android:layout_alignTop="@+id/pianoKey11"
+                android:layout_toRightOf="@+id/pianoKey11"
+                android:layout_toEndOf="@+id/pianoKey11"
+                app:layout_marginStartPercent="6.1%" />
+
+        </android.support.percent.PercentRelativeLayout>
 
     </android.support.percent.PercentRelativeLayout>
 

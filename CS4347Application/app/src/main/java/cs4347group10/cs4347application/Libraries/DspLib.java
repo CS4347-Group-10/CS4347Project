@@ -11,6 +11,8 @@ package cs4347group10.cs4347application.Libraries;
 import java.lang.Math.*;
 import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
 import cs4347group10.cs4347application.pojo.Envelope;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 public class DspLib {
     static public double[] sineWave(int numOfSamples, double magnitude, double frequency, int samplingRate) {
@@ -64,49 +66,54 @@ public class DspLib {
     static public Envelope characterizeWithEnvelope(double[] buffer, int stepSize){
 
         //Characterize using a number of key anchor points, determined by stepSize
-        double[] anchors = new double[(buffer.length / stepSize)+1];
+        int[] bounds = new int[buffer.length / stepSize];
+        //Generate bounds
+        for (int i = 0; i < buffer.length / stepSize; i++){
+            bounds[i] = i*stepSize;
+        }
+
+        double[] anchors = new double[(buffer.length / stepSize) - 2];
         double largestIntensity = 0;
         int anchorWithLargestIntensity = 0;
 
         double[] window = new double[buffer.length];
-        int firstElemAfterAnchor = (anchors.length-1) * stepSize;
-        int numElemsLeft = buffer.length - firstElemAfterAnchor;
+        int firstElemAfterBound = bounds[bounds.length-1] + 1;
+        int numElemsLeft = buffer.length - firstElemAfterBound;
 
         //Assume 0, to enforce envelope characteristic of always starting and ending with 0 intensity
-        anchors[0] = 0;
-        double weight = (double) 1 / stepSize;
-        for (int i = 1; i < anchors.length; i++){
+        for (int i = 0; i < anchors.length; i++){
+            double weight = (double) 1 / (bounds[i+2]-bounds[i]+1);
             double runningAverage = 0;
-            double lambda;
 
-            //BUG!
-            for (int j = (i-1)*stepSize; j < i*stepSize; j++){
+            for (int j = bounds[i]; j <= bounds[i+2]; j++){
                 runningAverage += weight*Math.abs(buffer[j]);
             }
             anchors[i] = runningAverage;
-
-            //Special case: there are no leftover samples
-            if(i == anchors.length - 1){
-                if(numElemsLeft < 1) {
-                    anchors[i] = 0; //Then i is the last anchor, we force it to 0
-                }
-            }
 
             //Update largest intensity anchor
             if(anchors[i] > largestIntensity){
                 anchorWithLargestIntensity = i;
                 largestIntensity = anchors[i];
             }
+        }
 
-            int startIdx = (i-1)*stepSize;
-            for (int j = 0; j < stepSize; j++){
-                //Linear interpolate values between anchors
-                window[startIdx + j] = anchors[i-1] + ((double)j/stepSize)*(anchors[i] - anchors[i-1]);
+        //Handle from 0 to 1st anchor (exclusive)
+        for (int j = 0; j < bounds[1]; j++){
+            window[j] = (double) 0 + (j/(bounds[1]))*anchors[0];
+        }
+
+        //Handle 1st anchor to last anchor
+        for (int i = 0; i < anchors.length-1; i++){
+            double weight = (double) 1 / (bounds[i+2] - bounds[i+1] + 1);
+            for (int j = bounds[i+1]; j < bounds[i+2]; j++){
+                window[j] = anchors[i] + j*weight*(anchors[i+1]-anchors[i]);
             }
         }
 
-        for (int j = 0; j < numElemsLeft; j++) {
-            window[firstElemAfterAnchor + j] = ((double)1 - ((double) j / numElemsLeft)) * (anchors[anchors.length - 1]);
+        //Handle last anchor to last element
+        double weight = (double) 1 / (window.length - bounds[bounds.length-1] + 1);
+        for (int j = bounds[bounds.length-1]; j < window.length; j++){
+            window[j] = (1-weight)*anchors[anchors.length-1];
         }
 
         //Compute start and end sustain
@@ -138,5 +145,80 @@ public class DspLib {
                 startAnchorIdx*stepSize,                            //id of where sustain starts
                 Math.min(endAnchorIdx*stepSize, buffer.length-1),   //id of where sustain ends (inclusive)
                 anchorWithLargestIntensity);                        //Peak of the signal (attack)
+    }
+
+    static public float[] doubleToFloat(double[] data){
+        float[] fdata = new float[data.length];
+        for (int i = 0 ; i < data.length; i++)
+        {
+            fdata[i] = (float) data[i];
+        }
+        return fdata;
+    }
+
+    static public double[] floatToDouble(float[] data){
+        double[] ddata = new double[data.length];
+        for (int i = 0 ; i < data.length; i++)
+        {
+            ddata[i] = (double) data[i];
+        }
+        return ddata;
+    }
+    static public short[] floatToShort(float[] data){
+        short[] ss = new short[data.length];
+        for(int i =0;i<data.length;i++){
+            ss[i]=(short) (Math.floor(data[i]*3276));
+        }
+        return ss;
+    }
+    static public short[] byteToShort(byte[] data){
+        short[] sdata = new short[data.length/2];
+        ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(sdata);
+        return sdata;
+    }
+
+    static public float[] shortToFloat(short[] data){
+        float[] fdata = new float[data.length];
+        for(int i =0;i<data.length;i++){
+            fdata[i]=(float)(data[i]/32767.0);
+        }
+        return fdata;
+    }
+    static public float[] testSound(double factor){
+        double[] data=sineWave(44100,1,440,44100);
+        float[] indata = doubleToFloat(data);
+        float[] outdata = new float[data.length];
+        PitchShifter ps = new PitchShifter(1024);
+        ps.setFftFrameSize(1024);
+        ps.setOversampling(32);
+        ps.setSampleRate(44100);
+        ps.setPitchShift(factor);
+        ps.smbPitchShift(indata, outdata, 0, 44100);
+        return outdata;
+    }
+    static public float[] shiftSound(double[] data, double factor){
+        float[] indata = doubleToFloat(data);
+        float[] outdata = new float[data.length];
+        PitchShifter ps = new PitchShifter(1024);
+        ps.setFftFrameSize(1024);
+        ps.setOversampling(32);
+        ps.setSampleRate(44100);
+        ps.setPitchShift(factor);
+        ps.smbPitchShift(indata, outdata, 0, 44100);
+        return outdata;
+    }
+
+    static public double pitchDetection(double[] data){
+
+        double[] fftData=forwardFFT(data);
+        int maxIndex = 0;
+        for (int i = 1; i < fftData.length/2-1; i++) {
+            i++;
+            double newnumber = fftData[i];
+            if ((newnumber > fftData[maxIndex])) {
+                maxIndex = i;
+            }
+        }
+        return (double) maxIndex/2;
     }
 }
