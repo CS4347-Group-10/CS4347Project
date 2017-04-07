@@ -197,6 +197,15 @@
 
         </android.support.percent.PercentRelativeLayout>
 
+        <Button
+            android:id="@+id/octave_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Change"
+            android:layout_above="@+id/piano_layout"
+            android:layout_alignRight="@+id/piano_layout"
+            android:layout_alignEnd="@+id/piano_layout" />
+
     </android.support.percent.PercentRelativeLayout>
 
     <fragment

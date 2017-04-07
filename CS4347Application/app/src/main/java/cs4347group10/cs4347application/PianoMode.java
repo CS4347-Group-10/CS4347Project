@@ -1,6 +1,7 @@
 package cs4347group10.cs4347application;
 
 import android.app.Activity;
+import android.content.Context;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
@@ -11,12 +12,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import cs4347group10.cs4347application.Libraries.DspLib;
+import cs4347group10.cs4347application.Libraries.ShiftData;
 
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -34,6 +40,7 @@ public class PianoMode  extends AppCompatActivity {
     short[] soundBuffer = null;
     int btn = -1;
     int octave = 1;
+    ShiftData sf = null;
     Set<Integer> buttons = new HashSet<>();
 
     private MediaRecorder mediaRecorder;
@@ -43,7 +50,33 @@ public class PianoMode  extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_piano_mode);
+        Context context = getApplicationContext();
+        InputStream in = context.getResources().openRawResource(R.raw.test1);
+        DataInputStream dis = new DataInputStream(in);
 
+        byte[] temp = new byte[88244];
+        try {
+            dis.read(temp, 0, 88244);
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+        sf=new ShiftData(DspLib.floatToDouble(DspLib.shortToFloat(DspLib.byteToShort(temp))),null);
+
+        Button octaveChange = (Button) findViewById(R.id.octave_button);
+        octaveChange.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (octave == 1) {
+                    octave = 0;
+                    TextView text = (TextView) findViewById(R.id.octave_number);
+                    text.setText("" + octave);
+                } else {
+                    octave = 1;
+                    TextView text = (TextView) findViewById(R.id.octave_number);
+                    text.setText("" + octave);
+                }
+            }
+        });
         ImageButton recordingBtn = (ImageButton) findViewById(R.id.record_button);
         final RelativeLayout pianoLayout = (RelativeLayout) findViewById(R.id.piano_layout);
         recordingBtn.setOnTouchListener(new View.OnTouchListener() {
@@ -142,14 +175,6 @@ public class PianoMode  extends AppCompatActivity {
         return i;
     }
 
-    public void changeOctave(){
-        if (octave == 1) {
-            octave = 0;
-            TextView text = (TextView) findViewById(R.id.octave_number);
-            text.setText(octave);
-        }
-    }
-
     public void setBtnPressed(int index, boolean isPressed){
         switch(index){
             case 0:
@@ -204,39 +229,30 @@ public class PianoMode  extends AppCompatActivity {
 
 
     public void playSound() {
-        audioThread = new Thread() {
+        Thread thread = new Thread() {
             public void run() {
                 // set process priority
-                //setPriority(Thread.MAX_PRIORITY);
-                short currentSound[] = new short[buffsize];
+                setPriority(Thread.MAX_PRIORITY);
                 // start audio
                 audioTrack.play();
                 // synthesis loop
                 while(isRunning){
-                    soundBuffer = getSound();
+                    //soundBuffer = getSound();
+                    int btnNum = btn - 7 + octave * 7;
+                    Log.d("DEBUG", "Button: " + btnNum);
+                    soundBuffer = sf.getFullNote(btnNum);
+                    short currentSound[] = new short[soundBuffer.length];
                     for(int i=0; i<currentSound.length; i++) {
                         currentSound[i] = soundBuffer[i];
                     }
-                    audioTrack.write(currentSound, 0, buffsize);
+                    audioTrack.write(currentSound, audioTrack.getPlaybackHeadPosition(), soundBuffer.length);
                 }
                 audioTrack.pause();
+                //audioTrack.pause();
                 audioTrack.flush();
             }
         };
-        audioThread.start();
-    }
-
-    public void onDestroy(){
-        super.onDestroy();
-        isRunning = false;
-        try {
-            if(audioThread != null) {
-                audioThread.join();
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        audioThread = null;
+        thread.start();
     }
 
     private void resetRecorder() {
