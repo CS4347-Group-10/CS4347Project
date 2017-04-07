@@ -104,16 +104,20 @@ public class DspLib {
 
         //Handle 1st anchor to last anchor
         for (int i = 0; i < anchors.length-1; i++){
-            double weight = (double) 1 / (bounds[i+2] - bounds[i+1] + 1);
+            double weight = (double) 1 / (bounds[i+2] - bounds[i+1]);
+            int count = 0;
             for (int j = bounds[i+1]; j < bounds[i+2]; j++){
-                window[j] = anchors[i] + j*weight*(anchors[i+1]-anchors[i]);
+                window[j] = anchors[i] + count*weight*(anchors[i+1]-anchors[i]);
+                count++;
             }
         }
 
         //Handle last anchor to last element
-        double weight = (double) 1 / (window.length - bounds[bounds.length-1] + 1);
-        for (int j = bounds[bounds.length-1]; j < window.length; j++){
-            window[j] = (1-weight)*anchors[anchors.length-1];
+        double weight = (double) 1 / (window.length - bounds[bounds.length-2]-1);
+        int count = 0;
+        for (int j = bounds[bounds.length-2]; j < window.length; j++){
+            window[j] = (1-(count*weight))*anchors[anchors.length-1];
+            count++;
         }
 
         //Compute start and end sustain
@@ -141,9 +145,19 @@ public class DspLib {
             }
         }
 
+        //Normalize window
+        double largestValue = 0;
+        for (int i = 0; i < window.length; i++){
+            if(window[i] > largestValue) largestValue = window[i];
+        }
+        for (int i = 0; i < window.length; i++){
+            window[i] /= largestValue;
+        }
+
+
         return new Envelope(window,                                 //Envelope filter
-                startAnchorIdx*stepSize,                            //id of where sustain starts
-                Math.min(endAnchorIdx*stepSize, buffer.length-1),   //id of where sustain ends (inclusive)
+                (startAnchorIdx+1)*stepSize,                            //id of where sustain starts
+                Math.min((endAnchorIdx+1)*stepSize, buffer.length-1),   //id of where sustain ends (inclusive)
                 anchorWithLargestIntensity);                        //Peak of the signal (attack)
     }
 

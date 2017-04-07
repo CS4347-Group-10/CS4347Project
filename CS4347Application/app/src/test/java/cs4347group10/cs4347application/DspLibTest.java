@@ -136,19 +136,19 @@ public class DspLibTest {
 
         for (int i = 0; i < window.length; i ++){
             assertNotNull(window[i]);
-            assertTrue(0.0 <= window[i] && window[i] <= magnitude);
+            assertTrue("window["+Integer.toString(i) +"] = " + Double.toString(window[i])
+                    +" is not between 0 and 1",
+                    0.0 <= window[i] && window[i] <= magnitude);
         }
+
         /*
-        assertFalse("Peak: " + Integer.toString(envelope.peak)
-                +" SustainStart: " + Integer.toString(envelope.sustainStart)
-                +" SustainEnd: " + Integer.toString(envelope.sustainEnd), true);
-                */
         assertFalse(printEnv(envelope)+"\n"
                 + "Peak: " + Integer.toString(envelope.peak)
                 +" SustainStart: " + Integer.toString(envelope.sustainStart)
                 +" SustainEnd: " + Integer.toString(envelope.sustainEnd)
                 +" "
                 , true);
+        */
 
         //Check peak conditions
         assertTrue("Peak: " + Integer.toString(envelope.peak)
