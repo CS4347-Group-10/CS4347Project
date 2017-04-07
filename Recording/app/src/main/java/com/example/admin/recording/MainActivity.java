@@ -7,7 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.view.View.OnClickListener;
-
+import android.view.View.OnTouchListener;
 import java.io.File;
 import android.view.MotionEvent;
 import android.os.Environment;
@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     private MediaRecorder mediaRecorder;
     private File RecordFile;
     private MediaPlayer mPlayer = null;
-
+    private MotionEvent event;
 
 
     @Override
@@ -31,14 +31,37 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         RecordButton = (Button) findViewById(R.id.button);
-        RecordButton.setOnClickListener(this);
+        //RecordButton.setOnClickListener(this);
+        RecordButton.setOnTouchListener(new View.OnTouchListener(){
+            @Override
+            public boolean onTouch(View view, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        view.setPressed(true);
+                        mediaRecorder = new MediaRecorder();
+                        resetRecorder();
+                        mediaRecorder.start();
+                        // Assign soundBuffer here
+                        // soundBuffer = ;
+                        break;
+                    case MotionEvent.ACTION_CANCEL:
+                    case MotionEvent.ACTION_UP:
+                        mediaRecorder.stop();
+                        mediaRecorder.release();
+                        mediaRecorder = null;
+                        view.setPressed(false);
+                        break;
+                }
+                return true;
+            }
+        });
         RecordButton.setEnabled(true);
-        RecordButton.setText("rec") ;
+        RecordButton.setText("rec");
 
-        StopRecButton = (Button) findViewById(R.id.button1);
+        /*StopRecButton = (Button) findViewById(R.id.button1);
         StopRecButton.setOnClickListener(this);
         StopRecButton.setEnabled(false);
-        StopRecButton.setText("stop rec");
+        StopRecButton.setText("stop rec");*/
 
         playRecAudio = (Button) findViewById(R.id.button2);
         playRecAudio.setOnClickListener(this);
@@ -78,21 +101,20 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.button:
-                mediaRecorder = new MediaRecorder();
+           /* case R.id.button:
+               mediaRecorder = new MediaRecorder();
                 resetRecorder();
                 mediaRecorder.start();
-
                 RecordButton.setEnabled(false);
                 StopRecButton.setEnabled(true);
-                break;
-            case R.id.button1:
+                break;*/
+           /* case R.id.button1:
                 mediaRecorder.stop();
                 mediaRecorder.release();
                 mediaRecorder = null;
                 RecordButton.setEnabled(true);
                 StopRecButton.setEnabled(false);
-                break;
+                break;*/
             case R.id.button2:
                 startPlaying();
                 break;
@@ -101,6 +123,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
                 break;
         }
     }
+
 
     private void stopPlaying() {
         mPlayer.release();

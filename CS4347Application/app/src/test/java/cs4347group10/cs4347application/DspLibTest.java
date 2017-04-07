@@ -139,9 +139,28 @@ public class DspLibTest {
             assertTrue(0.0 <= window[i] && window[i] <= magnitude);
         }
 
-        //TODO, need moar test
-        assertTrue(0 <= envelope.sustainStart && envelope.sustainStart < window.length);
-        assertTrue(0 <= envelope.sustainEnd && envelope.sustainEnd < window.length);
-        //assertTrue(Integer.toString(envelope.sustainStart) + ">", envelope.sustainStart < envelope.sustainEnd);
+        assertFalse("Peak: " + Integer.toString(envelope.peak)
+                +" SustainStart: " + Integer.toString(envelope.sustainStart)
+                +" SustainEnd: " + Integer.toString(envelope.sustainEnd), true);
+
+        //Check peak conditions
+        assertTrue("Peak: " + Integer.toString(envelope.peak)
+                +" is not between 0 and " + Integer.toString(window.length) + " inclusive",
+                (0 <= envelope.peak) && (envelope.peak <= window.length - 1));
+
+        //Check sustain minimal conditions
+        assertTrue("SustainStart: " + Integer.toString(envelope.sustainStart)
+                +" is not between 0 and " + Integer.toString(window.length) + " inclusive",
+                (0 <= envelope.sustainStart) && (envelope.sustainStart <= window.length - 1));
+        assertTrue("SustainEnd: " + Integer.toString(envelope.sustainEnd)
+                +" is not between 0 and " + Integer.toString(window.length) + " inclusive",
+                (0 <= envelope.sustainEnd) && (envelope.sustainEnd <= window.length - 1));
+        assertTrue(Integer.toString(envelope.sustainStart)
+                + " greater than or equals to "
+                + Integer.toString(envelope.sustainEnd)
+                , envelope.sustainStart < envelope.sustainEnd);
+        assertTrue("Sustain: " + Integer.toString(envelope.sustainStart)
+                + " does not happen after Peak: " + Integer.toString(envelope.peak),
+                envelope.sustainStart >= envelope.peak);
     }
 }
