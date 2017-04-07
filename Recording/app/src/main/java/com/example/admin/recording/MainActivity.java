@@ -31,8 +31,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         RecordButton = (Button) findViewById(R.id.button);
-        //RecordButton.setOnClickListener(this);
-        RecordButton.setOnTouchListener(new View.OnTouchListener(){
+        RecordButton.setOnClickListener(this);
+        /*RecordButton.setOnTouchListener(new View.OnTouchListener(){
             @Override
             public boolean onTouch(View view, MotionEvent event) {
                 switch (event.getAction()) {
@@ -54,14 +54,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
                 }
                 return true;
             }
-        });
+        });*/
         RecordButton.setEnabled(true);
         RecordButton.setText("rec");
 
-        /*StopRecButton = (Button) findViewById(R.id.button1);
+        StopRecButton = (Button) findViewById(R.id.button1);
         StopRecButton.setOnClickListener(this);
         StopRecButton.setEnabled(false);
-        StopRecButton.setText("stop rec");*/
+        StopRecButton.setText("stop rec");
 
         playRecAudio = (Button) findViewById(R.id.button2);
         playRecAudio.setOnClickListener(this);
@@ -73,8 +73,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         stopPlayRecAudio.setEnabled(true);
         stopPlayRecAudio.setText("stop audio");
 
-        RecordFile = new File(Environment.getExternalStorageDirectory(),
-                "audiotest.wav");
+
     }
 
     // this process must be done prior to the start of recording
@@ -101,20 +100,20 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
     public void onClick(View v) {
         switch (v.getId()) {
-           /* case R.id.button:
+            case R.id.button:
                mediaRecorder = new MediaRecorder();
                 resetRecorder();
                 mediaRecorder.start();
                 RecordButton.setEnabled(false);
                 StopRecButton.setEnabled(true);
-                break;*/
-           /* case R.id.button1:
+                break;
+           case R.id.button1:
                 mediaRecorder.stop();
                 mediaRecorder.release();
                 mediaRecorder = null;
                 RecordButton.setEnabled(true);
                 StopRecButton.setEnabled(false);
-                break;*/
+                break;
             case R.id.button2:
                 startPlaying();
                 break;

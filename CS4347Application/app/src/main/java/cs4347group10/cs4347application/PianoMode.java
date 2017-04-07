@@ -130,8 +130,7 @@ public class PianoMode  extends AppCompatActivity implements SensorEventListener
                 return true;
             }
         });
-
-        RecordFile = new File(Environment.getExternalStorageDirectory(), "piano_sound.wav");
+        RecordFile = new File(Environment.getExternalStorageDirectory(), "drum_sound.wav");
 
         pianoLayout.setOnTouchListener(new View.OnTouchListener() {
             @Override

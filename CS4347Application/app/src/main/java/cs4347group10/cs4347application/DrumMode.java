@@ -17,6 +17,8 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.media.MediaPlayer;
+import android.media.AudioRecord;
+import android.media.AudioTrack;
 import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -34,7 +36,12 @@ import android.animation.Animator;
 import android.widget.Button;
 import java.io.File;
 import java.io.IOException;
+import android.util.Base64;
 import java.util.*;
+import java.io.ByteArrayOutputStream;
+import java.io.ByteArrayInputStream;
+import android.os.ParcelFileDescriptor;
+import java.io.InputStream;
 
 /**
  * Created by Brendan on 3/29/2017.
@@ -64,6 +71,8 @@ public class DrumMode extends AppCompatActivity implements SensorEventListener {
     private MediaRecorder mediaRecorder;
     private File RecordFile;
     private MediaPlayer mPlayer = null;
+    byte [] temp =null;
+    private static String Filename = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,7 +105,11 @@ public class DrumMode extends AppCompatActivity implements SensorEventListener {
             }
         });
 
-        RecordFile = new File(Environment.getExternalStorageDirectory(), "drum_sound.wav");
+        Filename = getCacheDir().getAbsolutePath();
+        Filename +="drum_sound.wav";
+
+        //RecordFile = new File(Environment.getDataDirectory(),"drum_sound.wav");
+
 
         mySound = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
 
@@ -117,21 +130,55 @@ public class DrumMode extends AppCompatActivity implements SensorEventListener {
     }
 
     private void resetRecorder() {
+        /*ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+
+        ParcelFileDescriptor[] descriptors = new ParcelFileDescriptor[0];
+        try {
+            descriptors = ParcelFileDescriptor.createPipe();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        ParcelFileDescriptor parcelRead = new ParcelFileDescriptor(descriptors[0]);
+        ParcelFileDescriptor parcelWrite = new ParcelFileDescriptor(descriptors[1]);
+
+        InputStream inputStream = new ParcelFileDescriptor.AutoCloseInputStream(parcelRead);*/
+
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
         mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
 
         mediaRecorder.setAudioEncodingBitRate(16);
         mediaRecorder.setAudioSamplingRate(44100);
-        mediaRecorder.setOutputFile(RecordFile.getAbsolutePath());
+        //mediaRecorder.setOutputFile(RecordFile.getAbsolutePath());
+        mediaRecorder.setOutputFile(Filename);
+       // mediaRecorder.setOutputFile(parcelWrite.getFileDescriptor());
 
-        try {
+       try {
             mediaRecorder.prepare();
         } catch (IllegalStateException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        /*mediaRecorder.start();
+        int read;
+        byte[] data = new byte[16384];
+
+        try {
+            while ((read = inputStream.read(data, 0, data.length)) != -1) {
+                byteArrayOutputStream.write(data, 0, read);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            byteArrayOutputStream.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println(Arrays.toString(data));*/
+
     }
 
     public class ReverseInterpolator implements Interpolator {
@@ -189,7 +236,7 @@ public class DrumMode extends AppCompatActivity implements SensorEventListener {
 
     }
 
-    private void startPlaying() {
+    /*private void startPlaying() {
         mPlayer = new MediaPlayer();
         try {
             mPlayer.setDataSource(RecordFile.getPath());
@@ -199,7 +246,7 @@ public class DrumMode extends AppCompatActivity implements SensorEventListener {
             System.out.print("\"Prepare\"");
 
         }
-    }
+    }*/
 
     public void loadSound (boolean loaded, int stream, float volume) {
         mySound.setOnLoadCompleteListener(new OnLoadCompleteListener() {
@@ -268,10 +315,11 @@ public class DrumMode extends AppCompatActivity implements SensorEventListener {
 
             if (shake_speed > SHAKETHRESHOLD) {
                 //mySound.play(Shake_id, 1 / volume, 1 / volume, 1, 0, 1);
-                int stream= mySound.load(RecordFile.getPath(), 1);
-                boolean loaded = true;
-                loadSound(loaded, stream, (1 / volume));
-                //mySound.play(Shake_id3, 1 / volume, 1 / volume, 1, 0, 1);
+                int stream= mySound.load(Filename, 1);
+                //loadSound(loaded, stream, (1 / volume));
+
+
+                mySound.play(stream, 1 / volume, 1 / volume, 1, 0, 1);
                 drumHitAnimation();
                 //startPlaying();
             }
