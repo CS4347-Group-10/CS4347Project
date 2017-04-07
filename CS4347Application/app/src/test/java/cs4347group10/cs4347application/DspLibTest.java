@@ -127,7 +127,7 @@ public class DspLibTest {
         }
 
         //Test with step size 1; every element is an anchor
-        Envelope envelope = DspLib.characterizeWithEnvelope(sampleBuffer, 1);
+        Envelope envelope = DspLib.characterizeWithEnvelope(sampleBuffer, 1, DspLib.DEFAULT_ENV_THRESHOLD);
         double[] window = envelope.window;
 
         //Envelope starts with 0.0 and ends with 0.0
@@ -169,6 +169,26 @@ public class DspLibTest {
         assertTrue("Sustain: " + Integer.toString(envelope.sustainStart)
                 + " does not happen after Peak: " + Integer.toString(envelope.peak),
                 envelope.sustainStart >= envelope.peak);
+
+        //Check clipping minimal conditions
+        assertTrue("ClipStart: " + Integer.toString(envelope.clipStart)
+                +" is not between 0 and " + Integer.toString(window.length) + " inclusive",
+                (0 <= envelope.clipStart) && (envelope.clipStart <= window.length - 1));
+        assertTrue("ClipEnd: " + Integer.toString(envelope.clipEnd)
+                +" is not between 0 and " + Integer.toString(window.length) + " inclusive",
+                (0 <= envelope.clipEnd) && (envelope.clipEnd <= window.length - 1));
+        assertTrue(Integer.toString(envelope.clipStart)
+                + " greater than or equals to "
+                + Integer.toString(envelope.clipEnd)
+                , envelope.clipStart < envelope.clipEnd);
+        assertTrue(Integer.toString(envelope.clipStart)
+                        + " greater than or equals to "
+                        + Integer.toString(envelope.sustainStart)
+                , envelope.clipStart < envelope.sustainStart);
+        assertTrue(Integer.toString(envelope.clipEnd)
+                        + " less than "
+                        + Integer.toString(envelope.sustainEnd)
+                , envelope.clipEnd >= envelope.sustainEnd);
     }
 
     public static String printEnv(Envelope env){

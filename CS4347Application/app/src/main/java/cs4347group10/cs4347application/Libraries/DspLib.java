@@ -15,6 +15,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 public class DspLib {
+    public static final double DEFAULT_ENV_THRESHOLD = 0.05;
+
     static public double[] sineWave(int numOfSamples, double magnitude, double frequency, int samplingRate) {
         double[] samples = new double[numOfSamples];
         double k = Math.PI * 2. * frequency / samplingRate;
@@ -63,7 +65,7 @@ public class DspLib {
         return values;
     }
 
-    static public Envelope characterizeWithEnvelope(double[] buffer, int stepSize){
+    static public Envelope characterizeWithEnvelope(double[] buffer, int stepSize, double threshold){
 
         //Characterize using a number of key anchor points, determined by stepSize
         int[] bounds = new int[buffer.length / stepSize];
@@ -97,6 +99,29 @@ public class DspLib {
             }
         }
 
+        //Clip front and rear
+        boolean reachUseful = false;
+        int clipStart = 0;
+        int clipEnd = window.length - 1;
+
+        //Front clip
+        for (int i = 0; i >= anchorWithLargestIntensity && !reachUseful; i--){
+            if(anchors[i] > threshold*largestIntensity){
+                reachUseful = true;
+                clipStart = bounds[i];
+            }
+        }
+        //Rear clip
+        reachUseful = false;
+        int lastUsefulAnchor = anchors.length - 1;
+        for (int i = anchors.length - 1; i >= anchorWithLargestIntensity  && !reachUseful; i--){
+            if(anchors[i] > threshold*largestIntensity){
+                reachUseful = true;
+                clipEnd = bounds[i+2] - 1; //Also clip the point
+                lastUsefulAnchor = i;
+            }
+        }
+
         //Handle from 0 to 1st anchor (exclusive)
         for (int j = 0; j < bounds[1]; j++){
             window[j] = (double) 0 + (j/(bounds[1]))*anchors[0];
@@ -124,7 +149,7 @@ public class DspLib {
         int startAnchorIdx = anchorWithLargestIntensity;
         int endAnchorIdx = anchors.length - 1;
         double smallestGradient = Double.MAX_VALUE;
-        for (int anchorStartId = anchorWithLargestIntensity; anchorStartId < anchors.length; anchorStartId++){
+        for (int anchorStartId = anchorWithLargestIntensity; anchorStartId <= lastUsefulAnchor; anchorStartId++){
             double avgGradient = 0;
             for (int offset = 1; offset < anchors.length - anchorStartId; offset++) {
                 double lambda = (double) 1 / offset;
@@ -155,10 +180,13 @@ public class DspLib {
         }
 
 
-        return new Envelope(window,                                 //Envelope filter
+        return new Envelope(window,                                     //Envelope filter
                 (startAnchorIdx+1)*stepSize,                            //id of where sustain starts
                 Math.min((endAnchorIdx+1)*stepSize, buffer.length-1),   //id of where sustain ends (inclusive)
-                anchorWithLargestIntensity);                        //Peak of the signal (attack)
+                anchorWithLargestIntensity,                             //Peak of the signal (attack)
+                clipStart,                                              //Start of useful signal
+                clipEnd                                                 //End of useful signal
+        );
     }
 
     static public float[] doubleToFloat(double[] data){
@@ -236,18 +264,18 @@ public class DspLib {
         return (double) maxIndex/2;
     }
 
-    static public float[] distortSound(double[] data){
-        double[] firstPart = new double[data.length/2];
-        double[] secondPart = new double[data.length/2];
-        System.arraycopy(data,0,firstPart,0,data.length/2);
-        System.arraycopy(data,data.length/2,secondPart,0,data.length/2);
-        float[] distortFirst = shiftSound(firstPart,1.5);
-        float[] distortSecond = shiftSound(secondPart,0.75);
-
-        float[] result = new float[data.length];
-        System.arraycopy(distortFirst,0,result,0,data.length/2);
-        System.arraycopy(distortSecond,0,result,data.length/2,data.length/2);
+    static public float[] distortSound(double[] data,int repeats){
+        double[]temp = new double[data.length/repeats];
+        float[] distorted = new float[data.length/repeats];
+        float[] result= new float[data.length];
+        for(int i =0;i<repeats;i++){
+            double factor = 1.5-i%2*0.75;
+            System.arraycopy(data,i*data.length/repeats,temp,0,data.length/repeats);
+            distorted=shiftSound(temp,factor);
+            System.arraycopy(distorted,0,result,i*data.length/repeats,data.length/repeats);
+        }
         return result;
 
     }
+
 }

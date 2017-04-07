@@ -10,6 +10,8 @@ public class Envelope{
     public int sustainStart;
     public int sustainEnd;
     public int peak;
+    public int clipStart;
+    public int clipEnd;
 
     private Envelope(){};
 
@@ -26,9 +28,11 @@ public class Envelope{
                 0,
                 this.sustainEnd-this.sustainStart+1
                 );
+        this.clipStart = 0;
+        this.clipEnd = windowSize - 1;
     }
 
-    public Envelope(double[] window, int sustainStart, int sustainEnd, int peak){
+    public Envelope(double[] window, int sustainStart, int sustainEnd, int peak, int clipStart, int clipEnd){
         this.window = window;
         this.sustainStart = sustainStart;
         this.sustainEnd = sustainEnd;
@@ -41,5 +45,7 @@ public class Envelope{
                 0,
                 this.sustainEnd-this.sustainStart+1
         );
+        this.clipStart = clipStart;
+        this.clipEnd = clipEnd;
     }
 }
