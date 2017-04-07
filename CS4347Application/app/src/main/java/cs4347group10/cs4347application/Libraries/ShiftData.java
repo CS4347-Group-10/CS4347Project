@@ -18,6 +18,8 @@ public class ShiftData {
     public ShiftData(double[] data,Envelope en){
         sustainStart=en.sustainStart;
         sustainEnd=en.sustainEnd;
+        double[] newData = new double[en.clipEnd-en.clipStart];
+        System.arraycopy(data,en.clipStart,newData,0,en.clipEnd-en.clipStart);
         float[] tempsustain = new float[en.sustainComponent.length];
         float[] tempsound;
         float[] tempdistort;

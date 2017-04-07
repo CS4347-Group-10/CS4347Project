@@ -267,11 +267,12 @@ public class PianoMode  extends AppCompatActivity implements SensorEventListener
                     short[] startSound = Arrays.copyOfRange(fullSound, 0, sf.getSusStart());
                     track.write(startSound, 0, startSound.length);
                     track.flush();
+                    int var = 0;
                     // sustain loop
                     while (btnRunning[btnNum]) {
                         //buffers.set(btnIndex, sound);
                         short[] sustain = sf.getSustain(btnNum);
-                        track.write(sustain, 0, sustain.length);
+                        track.write(sustain, sustain.length, sustain.length);
 
                     }
                     track.pause();
