@@ -19,12 +19,14 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import cs4347group10.cs4347application.Libraries.DspLib;
 import cs4347group10.cs4347application.Libraries.ShiftData;
+import cs4347group10.cs4347application.pojo.Envelope;
 
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -77,6 +79,18 @@ public class PianoMode  extends AppCompatActivity implements SensorEventListener
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_piano_mode);
 
+        Context context = getApplicationContext();
+        InputStream in = context.getResources().openRawResource(R.raw.test1);
+        DataInputStream dis = new DataInputStream(in);
+        byte[] temp = new byte[88244];
+        try {
+            dis.read(temp, 0, 88244);
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+        Envelope en = DspLib.characterizeWithEnvelope(DspLib.floatToDouble(DspLib.shortToFloat(DspLib.byteToShort(temp))),1024);
+        sf=new ShiftData(DspLib.floatToDouble(DspLib.shortToFloat(DspLib.byteToShort(temp))),en);
+
         Button octaveChange = (Button) findViewById(R.id.octave_button);
         octaveChange.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -119,16 +133,6 @@ public class PianoMode  extends AppCompatActivity implements SensorEventListener
                         mediaRecorder.release();
                         mediaRecorder = null;
                         view.setPressed(false);
-                        Context context = getApplicationContext();
-                        InputStream in = context.getResources().openRawResource(R.raw.test1);
-                        DataInputStream dis = new DataInputStream(in);
-                        byte[] temp = new byte[88244];
-                        try {
-                            dis.read(temp, 0, 88244);
-                        }catch (IOException e){
-                            e.printStackTrace();
-                        }
-                        sf = new ShiftData(DspLib.floatToDouble(DspLib.shortToFloat(DspLib.byteToShort(temp))),null);
                         findViewById(R.id.animation_loading).setVisibility(View.INVISIBLE);
                         break;
                 }
@@ -250,19 +254,6 @@ public class PianoMode  extends AppCompatActivity implements SensorEventListener
         }
     }
 
-    public short[] getSound() {
-        short[] res = new short[buffsize];
-        int amp = 10000;
-        double twopi = 8.*Math.atan(1.);
-        double fr = 440 + 440 * btn/7.0;
-        double ph = 0.0;
-        for(int i = 0; i < buffsize; i++) {
-            res[i] = (short) (amp*Math.sin(ph));
-            ph += twopi*fr/samplingRate;
-        }
-        return res;
-    }
-
     public void playSound(final int btnIndex) {
         Thread thread = new Thread() {
             public void run() {
@@ -271,19 +262,22 @@ public class PianoMode  extends AppCompatActivity implements SensorEventListener
                 // start audio
                 AudioTrack track = aTracks[btnIndex];
                 track.play();
-                // synthesis loop
-                while(isRunning){
-                    //soundBuffer = getSound();
-                    int btnNum = btn - 7 + octave * 7;
-                    if(sf != null) {
-                        short[] sound = sf.getFullNote(btnNum);
-                        buffers.set(btnIndex, sound);
-                        //Log.d("DEBUG", "Button: " + btnNum);
-                        track.write(sound, 0, sound.length);
+                if(sf != null) {
+                    //int btnNum = btn - 7 + octave * 7;
+                    //short[] fullSound = sf.getFullNote(btnNum);
+                    //short[] startSound = Arrays.copyOfRange(fullSound, 0, sf.getSusEnd());
+                    //track.write(startSound, 0, startSound.length);
+                    // sustain loop
+                    while (isRunning) {
+                        int current = btn - 7 + octave * 7;
+                        //buffers.set(btnIndex, sound);
+                        short[] startSound = sf.getFullNote(current);
+                        track.write(startSound, 0, startSound.length);
+
                     }
+                    //track.pause();
+                    //track.flush();
                 }
-                track.pause();
-                track.flush();
             }
         };
         thread.start();
