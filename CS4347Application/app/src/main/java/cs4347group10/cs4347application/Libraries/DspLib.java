@@ -68,6 +68,10 @@ public class DspLib {
         //Characterize using a number of key anchor points, determined by stepSize
         int[] bounds = new int[buffer.length / stepSize];
         //Generate bounds
+        for (int i = 0; i < buffer.length / stepSize; i++){
+            bounds[i] = i*stepSize;
+        }
+
         double[] anchors = new double[(buffer.length / stepSize) - 2];
         double largestIntensity = 0;
         int anchorWithLargestIntensity = 0;
@@ -78,11 +82,10 @@ public class DspLib {
 
         //Assume 0, to enforce envelope characteristic of always starting and ending with 0 intensity
         for (int i = 0; i < anchors.length; i++){
-            double weight = (double) 1 / (bounds[i+1]-bounds[i]+1);
+            double weight = (double) 1 / (bounds[i+2]-bounds[i]+1);
             double runningAverage = 0;
 
-            //BUG!
-            for (int j = bounds[i]; j <= bounds[i+1]; j++){
+            for (int j = bounds[i]; j <= bounds[i+2]; j++){
                 runningAverage += weight*Math.abs(buffer[j]);
             }
             anchors[i] = runningAverage;
@@ -92,26 +95,27 @@ public class DspLib {
                 anchorWithLargestIntensity = i;
                 largestIntensity = anchors[i];
             }
-
-            int startIdx = (i-1)*stepSize;
-            for (int j = 0; j < stepSize; j++){
-                //Linear interpolate values between anchors
-                window[startIdx + j] = anchors[i-1] + ((double)j/stepSize)*(anchors[i] - anchors[i-1]);
-            }
         }
-        /*
+
         //Handle from 0 to 1st anchor (exclusive)
         for (int j = 0; j < bounds[1]; j++){
-            window[j] = (double) 0 + (j/(bounds[1])*(anchors[0]);
+            window[j] = (double) 0 + (j/(bounds[1]))*anchors[0];
         }
 
         //Handle 1st anchor to last anchor
-        for (int j = 0; j < numElemsLeft; j++) {
-            window[firstElemAfterAnchor + j] = ((double)1 - ((double) j / numElemsLeft)) * (anchors[anchors.length - 1]);
+        for (int i = 0; i < anchors.length-1; i++){
+            double weight = (double) 1 / (bounds[i+2] - bounds[i+1] + 1);
+            for (int j = bounds[i+1]; j < bounds[i+2]; j++){
+                window[j] = anchors[i] + j*weight*(anchors[i+1]-anchors[i]);
+            }
         }
 
         //Handle last anchor to last element
-        */
+        double weight = (double) 1 / (window.length - bounds[bounds.length-1] + 1);
+        for (int j = bounds[bounds.length-1]; j < window.length; j++){
+            window[j] = (1-weight)*anchors[anchors.length-1];
+        }
+
         //Compute start and end sustain
         int startAnchorIdx = anchorWithLargestIntensity;
         int endAnchorIdx = anchors.length - 1;
