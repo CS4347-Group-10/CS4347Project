@@ -13,6 +13,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +33,7 @@ public class PianoMode  extends AppCompatActivity {
     int buffsize;
     short[] soundBuffer = null;
     int btn = -1;
+    int octave = 1;
     Set<Integer> buttons = new HashSet<>();
 
     private MediaRecorder mediaRecorder;
@@ -140,6 +142,14 @@ public class PianoMode  extends AppCompatActivity {
         return i;
     }
 
+    public void changeOctave(){
+        if (octave == 1) {
+            octave = 0;
+            TextView text = (TextView) findViewById(R.id.octave_number);
+            text.setText(octave);
+        }
+    }
+
     public void setBtnPressed(int index, boolean isPressed){
         switch(index){
             case 0:
@@ -168,6 +178,17 @@ public class PianoMode  extends AppCompatActivity {
         }
     }
 
+    public void initAudio() {
+        buffsize = AudioTrack.getMinBufferSize(samplingRate, AudioFormat.CHANNEL_OUT_MONO,
+                AudioFormat.ENCODING_PCM_16BIT);
+
+        audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, samplingRate,
+                AudioFormat.CHANNEL_OUT_MONO,
+                AudioFormat.ENCODING_PCM_16BIT,
+                buffsize,
+                AudioTrack.MODE_STREAM);
+    }
+
     public short[] getSound() {
         short[] res = new short[buffsize];
         int amp = 10000;
@@ -181,38 +202,22 @@ public class PianoMode  extends AppCompatActivity {
         return res;
     }
 
-    public void initAudio() {
-        buffsize = AudioTrack.getMinBufferSize(samplingRate, AudioFormat.CHANNEL_OUT_MONO,
-                AudioFormat.ENCODING_PCM_16BIT);
-
-        audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, samplingRate,
-                AudioFormat.CHANNEL_OUT_MONO,
-                AudioFormat.ENCODING_PCM_16BIT,
-                buffsize,
-                AudioTrack.MODE_STREAM);
-    }
 
     public void playSound() {
         audioThread = new Thread() {
             public void run() {
                 // set process priority
                 //setPriority(Thread.MAX_PRIORITY);
-                short samples[] = new short[buffsize];
-                int amp = 10000;
-                double twopi = 8.*Math.atan(1.);
-                double fr = 440.f;
-                double ph = 0.0;
+                short currentSound[] = new short[buffsize];
                 // start audio
                 audioTrack.play();
                 // synthesis loop
                 while(isRunning){
-                    fr =  440 + 440*btn/7.0;
-                    for(int i=0; i < buffsize; i++){
-                        samples[i] = (short) (amp*Math.sin(ph));
-                        ph += twopi*fr/samplingRate;
+                    soundBuffer = getSound();
+                    for(int i=0; i<currentSound.length; i++) {
+                        currentSound[i] = soundBuffer[i];
                     }
-                    samples = getSound();
-                    audioTrack.write(samples, 0, buffsize);
+                    audioTrack.write(currentSound, 0, buffsize);
                 }
                 audioTrack.pause();
                 audioTrack.flush();
