@@ -20,14 +20,13 @@ public class ShiftData {
         sustainEnd=en.sustainEnd;
         double[] newData = new double[en.clipEnd-en.clipStart];
         System.arraycopy(data,en.clipStart,newData,0,en.clipEnd-en.clipStart);
-        float[] tempsustain = new float[en.sustainComponent.length];
+        float[] tempsustain = new float[sustainStart-newData.length/4];
         float[] tempsound;
         float[] tempdistort;
         for(int i =0;i<factors.length;i++){
             tempsound=DspLib.shiftSound(data,factors[i]);
             shifted.add(i,DspLib.floatToShort(tempsound));
-            System.arraycopy(tempsound,sustainStart,tempsustain,0,sustainEnd-sustainStart);
-            double[] sustain = en.sustainComponent;
+            System.arraycopy(tempsound,newData.length/4,tempsustain,0,sustainStart-newData.length/4);
             sustains.add(i,DspLib.floatToShort(tempsustain));
             tempdistort = DspLib.distortSound(DspLib.floatToDouble(tempsustain),4);
             distorted.add(i,DspLib.floatToShort(tempdistort));

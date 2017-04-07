@@ -198,7 +198,6 @@ public class PianoMode  extends AppCompatActivity implements SensorEventListener
             }
         });
         initAudio();
-        soundBuffer = new short[buffsize];
     }
 
     public int getButtonIndex(float width, float height, float x, float y) {
@@ -247,19 +246,23 @@ public class PianoMode  extends AppCompatActivity implements SensorEventListener
     public void initAudio() {
         buffsize = AudioTrack.getMinBufferSize(samplingRate, AudioFormat.CHANNEL_OUT_MONO,
                 AudioFormat.ENCODING_PCM_16BIT);
+        int susLength = sf.getSusEnd() - sf.getSusStart();
+        Log.d("DEBUG", "buffsize: " + buffsize + ", susLength: " + susLength);
         for(int i=0; i < 7; i++) {
             AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, samplingRate,
                     AudioFormat.CHANNEL_OUT_MONO,
                     AudioFormat.ENCODING_PCM_16BIT,
                     buffsize,
                     AudioTrack.MODE_STREAM);
-            buffers.add(new short[buffsize]);
             aTracks[i] = audioTrack;
+        }
+        for(int i=0; i < 14; i++){
+            buffers.add(new short[buffsize]);
         }
     }
 
     public void playSound(final int btnIndex) {
-        Thread thread = new Thread() {
+        audioThread = new Thread() {
             public void run() {
                 // set process priority
                 // setPriority(Thread.MAX_PRIORITY);
@@ -269,23 +272,26 @@ public class PianoMode  extends AppCompatActivity implements SensorEventListener
                 if(sf != null) {
                     int btnNum = btn - 7 + octave * 7;
                     short[] fullSound = sf.getFullNote(btnNum);
-                    short[] startSound = Arrays.copyOfRange(fullSound, 0, sf.getSusStart());
+                    short[] startSound = Arrays.copyOfRange(fullSound, 0, sf.getSusEnd()/2);
                     track.write(startSound, 0, startSound.length);
-                    track.flush();
-                    int var = 0;
+                    short[] endSound = Arrays.copyOfRange(fullSound, fullSound.length/4, sf.getSusStart());
                     // sustain loop
-                    while (btnRunning[btnNum]) {
+                    while (btnRunning[btn]) {
                         //buffers.set(btnIndex, sound);
-                        short[] sustain = sf.getSustain(btnNum);
-                        track.write(sustain, sustain.length, sustain.length);
+                        short[] distorted = sf.getDistort(btnNum);
+                        if(distort) {
+                            track.write(distorted, 0, distorted.length);
+                        } else {
+                            track.write(endSound, 0, endSound.length);
 
+                        }
                     }
                     track.pause();
                     track.flush();
                 }
             }
         };
-        thread.start();
+        audioThread.start();
     }
 
     private void resetRecorder() {
