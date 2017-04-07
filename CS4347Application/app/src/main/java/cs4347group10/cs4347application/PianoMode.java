@@ -39,6 +39,7 @@ import android.content.Context;
  */
 
 public class PianoMode  extends AppCompatActivity implements SensorEventListener {
+    int period = 100;
     Thread audioThread;
     int samplingRate = 44100;
     boolean isRunning = false;
@@ -50,6 +51,7 @@ public class PianoMode  extends AppCompatActivity implements SensorEventListener
     int octave = 1;
     ShiftData sf = null;
     Set<Integer> buttons = new HashSet<>();
+    Boolean distort = false;
 
     private MediaRecorder mediaRecorder;
     private File RecordFile;
@@ -268,7 +270,7 @@ public class PianoMode  extends AppCompatActivity implements SensorEventListener
                 while(isRunning){
                     //soundBuffer = getSound();
                     int btnNum = btn - 7 + octave * 7;
-                    Log.d("DEBUG", "Button: " + btnNum);
+                    //Log.d("DEBUG", "Button: " + btnNum);
                     soundBuffer = sf.getFullNote(btnNum);
                     short currentSound[] = new short[soundBuffer.length];
                     for(int i=0; i<currentSound.length; i++) {
@@ -307,7 +309,7 @@ public class PianoMode  extends AppCompatActivity implements SensorEventListener
     public  void onSensorChanged(SensorEvent event){
         long curTime = System.currentTimeMillis();
 
-        if((curTime - lastUpdate)> 200) {
+        if((curTime - lastUpdate)> period) {
             long diffTime = (curTime - lastUpdate);
             lastUpdate = curTime;
 
@@ -318,15 +320,37 @@ public class PianoMode  extends AppCompatActivity implements SensorEventListener
             float speed = Math.abs(x + y + z - last_x - last_y - last_z) / diffTime * 10000;
             shake_speed = speed;
 
-            System.out.println("x = " + x + "y = " + y + "z = " + z);
+            //System.out.println("x = " + x + "y = " + y + "z = " + z);
+            System.out.println(distort);
 
             //check for shake and distort note
             if(speed > 800){
-                System.out.println("Distort note");
+                distort = true;
+                System.out.println("distorted sound");
+            }
+            if(speed < 600){
+                distort = false;
             }
 
+            if(Math.abs(y) > 2.0) {
+                period = 1000;
+                if (octave == 1) {
+                    octave = 0;
+                    TextView text = (TextView) findViewById(R.id.octave_number);
+                    text.setText("" + octave);
+                } else {
+                    octave = 1;
+                    TextView text = (TextView) findViewById(R.id.octave_number);
+                    text.setText("" + octave);
+                }
+            }
 
+            else{
+                period = 200;
+            }
         }
+
+
 
     }
 
