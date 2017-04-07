@@ -17,8 +17,8 @@ import android.content.Intent;
 
 import android.media.*;
 
-
-public class MainActivity extends AppCompatActivity implements SensorEventListener{
+//public class MainActivity extends AppCompatActivity implements SensorEventListener
+public class MainActivity extends AppCompatActivity {
 
     private TextView xText, yText, zText;
     private Sensor mySensor;
@@ -31,9 +31,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        able = 1;
+        setContentView(R.layout.activity_start);
+    }
+        /*able = 1;
 
         Button Act1Button = (Button)findViewById(R.id.GoToShakeMode);
         Button Act3Button = (Button)findViewById(R.id.button3);
@@ -169,5 +169,5 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public void onPause() {
         super.onPause();
     }
-
+    */
 }

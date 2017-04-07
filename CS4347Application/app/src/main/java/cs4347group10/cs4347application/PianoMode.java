@@ -53,7 +53,6 @@ public class PianoMode  extends AppCompatActivity implements SensorEventListener
     int btn = -1;
     int octave = 1;
     ShiftData sf = null;
-    Set<Integer> buttons = new HashSet<>();
     Boolean distort = false;
 
     private MediaRecorder mediaRecorder;
@@ -62,7 +61,6 @@ public class PianoMode  extends AppCompatActivity implements SensorEventListener
     //*******************************************************************//
     boolean[] btnRunning = new boolean[7];
     AudioTrack[] aTracks = new AudioTrack[7];
-    ArrayList<short[]> buffers = new ArrayList<short[]>();
     //************* Sensor data variables *******************************//
 
     private Sensor accelerometer;
@@ -79,7 +77,7 @@ public class PianoMode  extends AppCompatActivity implements SensorEventListener
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_piano_mode);
 
-        Context context = getApplicationContext();
+        /*Context context = getApplicationContext();
         InputStream in = context.getResources().openRawResource(R.raw.test1);
         DataInputStream dis = new DataInputStream(in);
         byte[] temp = new byte[88244];
@@ -89,7 +87,7 @@ public class PianoMode  extends AppCompatActivity implements SensorEventListener
             e.printStackTrace();
         }
         Envelope en = DspLib.characterizeWithEnvelope(DspLib.floatToDouble(DspLib.shortToFloat(DspLib.byteToShort(temp))),1024, DspLib.DEFAULT_ENV_THRESHOLD);
-        sf=new ShiftData(DspLib.floatToDouble(DspLib.shortToFloat(DspLib.byteToShort(temp))),en);
+        sf=new ShiftData(DspLib.floatToDouble(DspLib.shortToFloat(DspLib.byteToShort(temp))),en);*/
 
         Button octaveChange = (Button) findViewById(R.id.octave_button);
         octaveChange.setOnClickListener(new View.OnClickListener() {
@@ -133,23 +131,21 @@ public class PianoMode  extends AppCompatActivity implements SensorEventListener
                         mediaRecorder.release();
                         mediaRecorder = null;
                         view.setPressed(false);
+                        processSound();
                         findViewById(R.id.animation_loading).setVisibility(View.INVISIBLE);
                         break;
                 }
                 return true;
             }
         });
-<<<<<<< HEAD
-        RecordFile = new File(Environment.getExternalStorageDirectory(), "drum_sound.wav");
-
-=======
 
         RecordFile = new File(Environment.getExternalStorageDirectory(), "piano_sound.wav");
+
         for(int i=0; i<7; i++) {
             btnRunning[i] = false;
             aTracks[i] = null;
         }
->>>>>>> e6d08787dd658f173f43c59662e9a72f534dd267
+
         pianoLayout.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent event) {
@@ -161,17 +157,16 @@ public class PianoMode  extends AppCompatActivity implements SensorEventListener
                     case MotionEvent.ACTION_DOWN:
                         posX = event.getX();
                         posY = event.getY();
-                        buttons.add(getButtonIndex(width, height, posX, posY));
                         btn = getButtonIndex(width, height, posX, posY);
                         setBtnPressed(btn, true);
-                        isRunning = true;
+                        //isRunning = true;
                         btnRunning[btn] = true;
                         playSound(btn);
                         break;
                     case MotionEvent.ACTION_CANCEL:
                     case MotionEvent.ACTION_UP:
                         setBtnPressed(btn, false);
-                        isRunning = false;
+                        //isRunning = false;
                         btnRunning = new boolean[7];
                         break;
                     case MotionEvent.ACTION_MOVE:
@@ -189,7 +184,7 @@ public class PianoMode  extends AppCompatActivity implements SensorEventListener
                             }
                         } else {
                             setBtnPressed(btn, false);
-                            isRunning = false;
+                            //isRunning = false;
                             btnRunning = new boolean[7];
                         }
                         break;
@@ -198,6 +193,25 @@ public class PianoMode  extends AppCompatActivity implements SensorEventListener
             }
         });
         initAudio();
+    }
+
+    public void processSound() {
+        Context context = getApplicationContext();
+
+        //****************************************************//
+        // Change this line to read from recorded file location
+        InputStream in = context.getResources().openRawResource(R.raw.test1);
+
+        //****************************************************//
+        DataInputStream dis = new DataInputStream(in);
+        byte[] temp = new byte[88244];
+        try {
+            dis.read(temp, 0, 88244);
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+        Envelope en = DspLib.characterizeWithEnvelope(DspLib.floatToDouble(DspLib.shortToFloat(DspLib.byteToShort(temp))),1024, DspLib.DEFAULT_ENV_THRESHOLD);
+        sf=new ShiftData(DspLib.floatToDouble(DspLib.shortToFloat(DspLib.byteToShort(temp))),en);
     }
 
     public int getButtonIndex(float width, float height, float x, float y) {
@@ -246,8 +260,6 @@ public class PianoMode  extends AppCompatActivity implements SensorEventListener
     public void initAudio() {
         buffsize = AudioTrack.getMinBufferSize(samplingRate, AudioFormat.CHANNEL_OUT_MONO,
                 AudioFormat.ENCODING_PCM_16BIT);
-        int susLength = sf.getSusEnd() - sf.getSusStart();
-        Log.d("DEBUG", "buffsize: " + buffsize + ", susLength: " + susLength);
         for(int i=0; i < 7; i++) {
             AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, samplingRate,
                     AudioFormat.CHANNEL_OUT_MONO,
@@ -255,9 +267,6 @@ public class PianoMode  extends AppCompatActivity implements SensorEventListener
                     buffsize,
                     AudioTrack.MODE_STREAM);
             aTracks[i] = audioTrack;
-        }
-        for(int i=0; i < 14; i++){
-            buffers.add(new short[buffsize]);
         }
     }
 

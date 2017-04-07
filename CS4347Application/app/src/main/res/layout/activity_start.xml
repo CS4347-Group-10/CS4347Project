@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/wood_gradient_after"/>
+
+    <fragment
+        android:id="@+id/navigation_bar"
+        tools:layout="@layout/fragment_navbar"
+        android:name="cs4347group10.cs4347application.NavbarFragment"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_alignParentTop="true" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:textAlignment="center"
+        android:textSize="40dp"
+        android:background="#80FFFFFF"
+        android:textColor="@color/colorBrown"
+        android:text="CS4347 Musical Instrument" />
+
+</RelativeLayout>
