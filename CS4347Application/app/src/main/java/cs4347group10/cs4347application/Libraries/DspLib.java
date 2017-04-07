@@ -15,6 +15,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 public class DspLib {
+    public static final double DEFAULT_ENV_THRESHOLD = 0.05;
+
     static public double[] sineWave(int numOfSamples, double magnitude, double frequency, int samplingRate) {
         double[] samples = new double[numOfSamples];
         double k = Math.PI * 2. * frequency / samplingRate;
@@ -63,7 +65,7 @@ public class DspLib {
         return values;
     }
 
-    static public Envelope characterizeWithEnvelope(double[] buffer, int stepSize){
+    static public Envelope characterizeWithEnvelope(double[] buffer, int stepSize, double threshold){
 
         //Characterize using a number of key anchor points, determined by stepSize
         int[] bounds = new int[buffer.length / stepSize];
@@ -94,6 +96,27 @@ public class DspLib {
             if(anchors[i] > largestIntensity){
                 anchorWithLargestIntensity = i;
                 largestIntensity = anchors[i];
+            }
+        }
+
+        //Clip front and rear
+        boolean reachUseful = false;
+        int clipStart = 0;
+        int clipEnd = window.length - 1;
+
+        //Front clip
+        for (int i = 0; i >= anchorWithLargestIntensity && !reachUseful; i--){
+            if(anchors[i] > threshold*largestIntensity){
+                reachUseful = true;
+                clipStart = bounds[i];
+            }
+        }
+        //Rear clip
+        reachUseful = false;
+        for (int i = anchors.length - 1; i >= anchorWithLargestIntensity  && !reachUseful; i--){
+            if(anchors[i] > threshold*largestIntensity){
+                reachUseful = true;
+                clipEnd = bounds[i+2] - 1; //Also clip the point
             }
         }
 
@@ -155,10 +178,13 @@ public class DspLib {
         }
 
 
-        return new Envelope(window,                                 //Envelope filter
+        return new Envelope(window,                                     //Envelope filter
                 (startAnchorIdx+1)*stepSize,                            //id of where sustain starts
                 Math.min((endAnchorIdx+1)*stepSize, buffer.length-1),   //id of where sustain ends (inclusive)
-                anchorWithLargestIntensity);                        //Peak of the signal (attack)
+                anchorWithLargestIntensity,                             //Peak of the signal (attack)
+                clipStart,                                              //Start of useful signal
+                clipEnd                                                 //End of useful signal
+        );
     }
 
     static public float[] doubleToFloat(double[] data){
