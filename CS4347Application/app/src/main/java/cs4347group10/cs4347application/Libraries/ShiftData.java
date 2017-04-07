@@ -18,6 +18,9 @@ public class ShiftData {
         }
     }
     public short[] getFullNote(int index){
+        if(shifted.isEmpty()){
+            return null;
+        }
         return shifted.get(index+7);
     }
 }

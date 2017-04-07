@@ -24,6 +24,7 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -56,6 +57,10 @@ public class PianoMode  extends AppCompatActivity implements SensorEventListener
     private MediaRecorder mediaRecorder;
     private File RecordFile;
 
+    //*******************************************************************//
+    boolean[] btnRunning = new boolean[7];
+    AudioTrack[] aTracks = new AudioTrack[7];
+    ArrayList<short[]> buffers = new ArrayList<short[]>();
     //************* Sensor data variables *******************************//
 
     private Sensor accelerometer;
@@ -67,22 +72,10 @@ public class PianoMode  extends AppCompatActivity implements SensorEventListener
 
     //******************************************************************//
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_piano_mode);
-        Context context = getApplicationContext();
-        InputStream in = context.getResources().openRawResource(R.raw.test1);
-        DataInputStream dis = new DataInputStream(in);
-
-        byte[] temp = new byte[88244];
-        try {
-            dis.read(temp, 0, 88244);
-        }catch (IOException e){
-            e.printStackTrace();
-        }
-        sf=new ShiftData(DspLib.floatToDouble(DspLib.shortToFloat(DspLib.byteToShort(temp))),null);
 
         Button octaveChange = (Button) findViewById(R.id.octave_button);
         octaveChange.setOnClickListener(new View.OnClickListener() {
@@ -126,6 +119,16 @@ public class PianoMode  extends AppCompatActivity implements SensorEventListener
                         mediaRecorder.release();
                         mediaRecorder = null;
                         view.setPressed(false);
+                        Context context = getApplicationContext();
+                        InputStream in = context.getResources().openRawResource(R.raw.test1);
+                        DataInputStream dis = new DataInputStream(in);
+                        byte[] temp = new byte[88244];
+                        try {
+                            dis.read(temp, 0, 88244);
+                        }catch (IOException e){
+                            e.printStackTrace();
+                        }
+                        sf = new ShiftData(DspLib.floatToDouble(DspLib.shortToFloat(DspLib.byteToShort(temp))),null);
                         findViewById(R.id.animation_loading).setVisibility(View.INVISIBLE);
                         break;
                 }
@@ -134,7 +137,10 @@ public class PianoMode  extends AppCompatActivity implements SensorEventListener
         });
 
         RecordFile = new File(Environment.getExternalStorageDirectory(), "piano_sound.wav");
-
+        for(int i=0; i<7; i++) {
+            btnRunning[i] = false;
+            aTracks[i] = null;
+        }
         pianoLayout.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent event) {
@@ -150,37 +156,32 @@ public class PianoMode  extends AppCompatActivity implements SensorEventListener
                         btn = getButtonIndex(width, height, posX, posY);
                         setBtnPressed(btn, true);
                         isRunning = true;
-                        playSound();
-                        //Log.d("DEBUG", "X: " + posX);
-                        //Log.d("DEBUG", "Y: " + posY);
-                        //Log.d("DEBUG", "Button is down");
-                        //Log.d("DEBUG", "isRunning = " + isRunning);
+                        btnRunning[btn] = true;
+                        playSound(btn);
                         break;
                     case MotionEvent.ACTION_CANCEL:
                     case MotionEvent.ACTION_UP:
                         setBtnPressed(btn, false);
                         isRunning = false;
-                        //Log.d("DEBUG", "Button is up");
-                        //Log.d("DEBUG", "isRunning = " + isRunning);
+                        btnRunning = new boolean[7];
                         break;
                     case MotionEvent.ACTION_MOVE:
                         posX = event.getX();
                         posY = event.getY();
-                        //Log.d("DEBUG", "X: " + posX);
-                        //Log.d("DEBUG", "Y: " + posY);
                         int current = getButtonIndex(width, height, posX, posY);
                         if(current >= 0) {
                             if(btn != current) {
                                 setBtnPressed(btn, false);
                                 setBtnPressed(current, true);
-                                buttons.remove(btn);
-                                buttons.add(current);
+                                btnRunning[btn] = false;
+                                btnRunning[current] = true;
                                 btn = current;
+                                playSound(btn);
                             }
-                            //playSound(btn);
                         } else {
                             setBtnPressed(btn, false);
                             isRunning = false;
+                            btnRunning = new boolean[7];
                         }
                         break;
                 }
@@ -235,14 +236,18 @@ public class PianoMode  extends AppCompatActivity implements SensorEventListener
     }
 
     public void initAudio() {
-        buffsize = AudioTrack.getMinBufferSize(samplingRate, AudioFormat.CHANNEL_OUT_MONO,
-                AudioFormat.ENCODING_PCM_16BIT);
+        for(int i=0; i < 7; i++) {
+            int buffsize = AudioTrack.getMinBufferSize(samplingRate, AudioFormat.CHANNEL_OUT_MONO,
+                    AudioFormat.ENCODING_PCM_16BIT);
 
-        audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, samplingRate,
-                AudioFormat.CHANNEL_OUT_MONO,
-                AudioFormat.ENCODING_PCM_16BIT,
-                buffsize,
-                AudioTrack.MODE_STREAM);
+            AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, samplingRate,
+                    AudioFormat.CHANNEL_OUT_MONO,
+                    AudioFormat.ENCODING_PCM_16BIT,
+                    buffsize,
+                    AudioTrack.MODE_STREAM);
+            buffers.add(new short[buffsize]);
+            aTracks[i] = audioTrack;
+        }
     }
 
     public short[] getSound() {
@@ -258,29 +263,27 @@ public class PianoMode  extends AppCompatActivity implements SensorEventListener
         return res;
     }
 
-
-    public void playSound() {
+    public void playSound(final int btnIndex) {
         Thread thread = new Thread() {
             public void run() {
                 // set process priority
-                setPriority(Thread.MAX_PRIORITY);
+                // setPriority(Thread.MAX_PRIORITY);
                 // start audio
-                audioTrack.play();
+                AudioTrack track = aTracks[btnIndex];
+                track.play();
                 // synthesis loop
                 while(isRunning){
                     //soundBuffer = getSound();
                     int btnNum = btn - 7 + octave * 7;
-                    //Log.d("DEBUG", "Button: " + btnNum);
-                    soundBuffer = sf.getFullNote(btnNum);
-                    short currentSound[] = new short[soundBuffer.length];
-                    for(int i=0; i<currentSound.length; i++) {
-                        currentSound[i] = soundBuffer[i];
+                    if(sf != null) {
+                        short[] sound = sf.getFullNote(btnNum);
+                        buffers.set(btnIndex, sound);
+                        //Log.d("DEBUG", "Button: " + btnNum);
+                        track.write(sound, 0, sound.length);
                     }
-                    audioTrack.write(currentSound, audioTrack.getPlaybackHeadPosition(), soundBuffer.length);
                 }
-                audioTrack.pause();
-                //audioTrack.pause();
-                audioTrack.flush();
+                track.pause();
+                track.flush();
             }
         };
         thread.start();
@@ -319,20 +322,15 @@ public class PianoMode  extends AppCompatActivity implements SensorEventListener
 
             float speed = Math.abs(x + y + z - last_x - last_y - last_z) / diffTime * 10000;
             shake_speed = speed;
-
-            //System.out.println("x = " + x + "y = " + y + "z = " + z);
-            System.out.println(distort);
-
             //check for shake and distort note
-            if(speed > 800){
+            if (speed > 800) {
                 distort = true;
-                System.out.println("distorted sound");
             }
-            if(speed < 600){
+            if (speed < 600) {
                 distort = false;
             }
 
-            if(Math.abs(y) > 2.0) {
+            if (Math.abs(y) > 2.0) {
                 period = 1000;
                 if (octave == 1) {
                     octave = 0;
@@ -343,22 +341,28 @@ public class PianoMode  extends AppCompatActivity implements SensorEventListener
                     TextView text = (TextView) findViewById(R.id.octave_number);
                     text.setText("" + octave);
                 }
-            }
-
-            else{
+            } else {
                 period = 200;
             }
         }
-
-
-
     }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
 
-
+    public void onDestroy(){
+        super.onDestroy();
+        isRunning = false;
+        try {
+            if(audioThread != null) {
+                audioThread.join();
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        audioThread = null;
+    }
 
 
 }
