@@ -99,6 +99,7 @@ public class DrumMode extends AppCompatActivity implements SensorEventListener {
         RecordFile = new File(Environment.getExternalStorageDirectory(), "drum_sound.wav");
 
         mySound = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
+
         Shake_id = mySound.load(this, R.raw.drumsound, 1);
         Shake_id2 = mySound.load(this, R.raw.shake, 1);
 
@@ -187,6 +188,7 @@ public class DrumMode extends AppCompatActivity implements SensorEventListener {
                 });
 
     }
+
     private void startPlaying() {
         mPlayer = new MediaPlayer();
         try {
@@ -266,12 +268,12 @@ public class DrumMode extends AppCompatActivity implements SensorEventListener {
 
             if (shake_speed > SHAKETHRESHOLD) {
                 //mySound.play(Shake_id, 1 / volume, 1 / volume, 1, 0, 1);
-                //startPlaying();
                 int stream= mySound.load(RecordFile.getPath(), 1);
                 boolean loaded = true;
                 loadSound(loaded, stream, (1 / volume));
                 //mySound.play(Shake_id3, 1 / volume, 1 / volume, 1, 0, 1);
                 drumHitAnimation();
+                //startPlaying();
             }
 
         }

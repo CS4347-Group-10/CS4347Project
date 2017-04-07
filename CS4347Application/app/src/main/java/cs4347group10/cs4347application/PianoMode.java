@@ -2,6 +2,7 @@ package cs4347group10.cs4347application;
 
 import android.app.Activity;
 import android.content.Context;
+import android.hardware.SensorEventListener;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
@@ -26,11 +27,18 @@ import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
 
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.media.AudioManager;
+import android.content.Context;
+
 /**
  * Created by Brendan on 3/29/2017.
  */
 
-public class PianoMode  extends AppCompatActivity {
+public class PianoMode  extends AppCompatActivity implements SensorEventListener {
     Thread audioThread;
     int samplingRate = 44100;
     boolean isRunning = false;
@@ -45,6 +53,18 @@ public class PianoMode  extends AppCompatActivity {
 
     private MediaRecorder mediaRecorder;
     private File RecordFile;
+
+    //************* Sensor data variables *******************************//
+
+    private Sensor accelerometer;
+    private long curTime, lastUpdate;
+    private float x,y,z,last_x,last_y,last_z, shake_speed;
+    private SensorManager mSensorManager;
+
+    private ShakeEventListener mSensorListener;
+
+    //******************************************************************//
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +97,15 @@ public class PianoMode  extends AppCompatActivity {
                 }
             }
         });
+        //*********************** Sensor initialisation *************************//
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mSensorManager.registerListener(this,accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+        curTime = lastUpdate = (long)0.0;
+        x = y = z = last_x = last_y = last_z = (float)0.0;
+        mSensorListener = new ShakeEventListener();
+        //***********************************************************************//
+
         ImageButton recordingBtn = (ImageButton) findViewById(R.id.record_button);
         final RelativeLayout pianoLayout = (RelativeLayout) findViewById(R.id.piano_layout);
         recordingBtn.setOnTouchListener(new View.OnTouchListener() {
@@ -272,5 +301,40 @@ public class PianoMode  extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
+    //***************************** Sensor changed methods **********************//
+
+    public  void onSensorChanged(SensorEvent event){
+        long curTime = System.currentTimeMillis();
+
+        if((curTime - lastUpdate)> 200) {
+            long diffTime = (curTime - lastUpdate);
+            lastUpdate = curTime;
+
+            x = event.values[0];
+            y = event.values[1];
+            z = event.values[2];
+
+            float speed = Math.abs(x + y + z - last_x - last_y - last_z) / diffTime * 10000;
+            shake_speed = speed;
+
+            System.out.println("x = " + x + "y = " + y + "z = " + z);
+
+            //check for shake and distort note
+            if(speed > 800){
+                System.out.println("Distort note");
+            }
+
+
+        }
+
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+    }
+
+
+
 
 }
