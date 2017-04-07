@@ -113,10 +113,12 @@ public class DspLib {
         }
         //Rear clip
         reachUseful = false;
+        int lastUsefulAnchor = anchors.length - 1;
         for (int i = anchors.length - 1; i >= anchorWithLargestIntensity  && !reachUseful; i--){
             if(anchors[i] > threshold*largestIntensity){
                 reachUseful = true;
                 clipEnd = bounds[i+2] - 1; //Also clip the point
+                lastUsefulAnchor = i;
             }
         }
 
@@ -147,7 +149,7 @@ public class DspLib {
         int startAnchorIdx = anchorWithLargestIntensity;
         int endAnchorIdx = anchors.length - 1;
         double smallestGradient = Double.MAX_VALUE;
-        for (int anchorStartId = anchorWithLargestIntensity; anchorStartId < anchors.length; anchorStartId++){
+        for (int anchorStartId = anchorWithLargestIntensity; anchorStartId <= lastUsefulAnchor; anchorStartId++){
             double avgGradient = 0;
             for (int offset = 1; offset < anchors.length - anchorStartId; offset++) {
                 double lambda = (double) 1 / offset;
