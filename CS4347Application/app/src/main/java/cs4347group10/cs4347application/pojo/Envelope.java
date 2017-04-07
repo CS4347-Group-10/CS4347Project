@@ -6,6 +6,7 @@ package cs4347group10.cs4347application.pojo;
 
 public class Envelope{
     public double[] window;
+    public double[] sustainComponent;
     public int sustainStart;
     public int sustainEnd;
     public int peak;
@@ -17,6 +18,14 @@ public class Envelope{
         this.sustainStart = 0;
         this.sustainEnd = windowSize - 1;
         this.peak = sustainStart;
+        this.sustainComponent = new double[this.sustainEnd-this.sustainStart+1];
+        System.arraycopy(
+                this.window,
+                this.sustainStart,
+                this.sustainComponent,
+                0,
+                this.sustainEnd-this.sustainStart+1
+                );
     }
 
     public Envelope(double[] window, int sustainStart, int sustainEnd, int peak){
@@ -24,5 +33,13 @@ public class Envelope{
         this.sustainStart = sustainStart;
         this.sustainEnd = sustainEnd;
         this.peak = peak;
+        this.sustainComponent = new double[this.sustainEnd-this.sustainStart+1];
+        System.arraycopy(
+                this.window,
+                this.sustainStart,
+                this.sustainComponent,
+                0,
+                this.sustainEnd-this.sustainStart+1
+        );
     }
 }

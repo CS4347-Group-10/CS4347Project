@@ -136,12 +136,19 @@ public class DspLibTest {
 
         for (int i = 0; i < window.length; i ++){
             assertNotNull(window[i]);
-            assertTrue(0.0 <= window[i] && window[i] <= magnitude);
+            assertTrue("window["+Integer.toString(i) +"] = " + Double.toString(window[i])
+                    +" is not between 0 and 1",
+                    0.0 <= window[i] && window[i] <= magnitude);
         }
 
-        assertFalse("Peak: " + Integer.toString(envelope.peak)
+        /*
+        assertFalse(printEnv(envelope)+"\n"
+                + "Peak: " + Integer.toString(envelope.peak)
                 +" SustainStart: " + Integer.toString(envelope.sustainStart)
-                +" SustainEnd: " + Integer.toString(envelope.sustainEnd), true);
+                +" SustainEnd: " + Integer.toString(envelope.sustainEnd)
+                +" "
+                , true);
+        */
 
         //Check peak conditions
         assertTrue("Peak: " + Integer.toString(envelope.peak)
@@ -162,5 +169,15 @@ public class DspLibTest {
         assertTrue("Sustain: " + Integer.toString(envelope.sustainStart)
                 + " does not happen after Peak: " + Integer.toString(envelope.peak),
                 envelope.sustainStart >= envelope.peak);
+    }
+
+    public static String printEnv(Envelope env){
+        String output = new String();
+        double[] window = env.window;
+        for (int i = 0; i < window.length; i ++){
+            if(i!=0) output += ",";
+            output += window[i];
+        }
+        return output;
     }
 }

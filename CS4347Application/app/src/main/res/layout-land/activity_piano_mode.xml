@@ -28,6 +28,19 @@
             android:layout_centerHorizontal="true"
             app:layout_marginTopPercent="8%" />
 
+        <TextView
+            android:id="@+id/octave_number"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/record_button"
+            android:layout_alignLeft="@+id/piano_layout"
+            android:background="#80FFFFFF"
+            android:ems="10"
+            android:text="1"
+            android:gravity="center"
+            android:textSize="30sp"
+            app:layout_heightPercent="20%"
+            app:layout_widthPercent="10%" />
+
         <pl.droidsonroids.gif.GifImageView
             android:id="@+id/animation_loading"
             app:layout_aspectRatio="100%"
@@ -184,8 +197,14 @@
 
         </android.support.percent.PercentRelativeLayout>
 
-
-
+        <Button
+            android:id="@+id/octave_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Change"
+            android:layout_above="@+id/piano_layout"
+            android:layout_alignRight="@+id/piano_layout"
+            android:layout_alignEnd="@+id/piano_layout" />
 
     </android.support.percent.PercentRelativeLayout>
 
