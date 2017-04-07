@@ -218,7 +218,7 @@ public class DspLib {
         ps.setOversampling(32);
         ps.setSampleRate(44100);
         ps.setPitchShift(factor);
-        ps.smbPitchShift(indata, outdata, 0, 44100);
+        ps.smbPitchShift(indata, outdata, 0, data.length);
         return outdata;
     }
 
