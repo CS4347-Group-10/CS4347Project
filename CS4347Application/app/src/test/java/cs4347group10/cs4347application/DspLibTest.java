@@ -14,16 +14,6 @@ import cs4347group10.cs4347application.pojo.Envelope;
  */
 public class DspLibTest {
 
-    public static String printArray(double[] array){
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < array.length; i++){
-            if(i!=0) sb.append(",");
-            sb.append(Double.toString(array[i]));
-        }
-
-        return sb.toString();
-    }
-
     @Test
     public void sineWave_minimalTest() throws Exception {
         int samples = 44100;
@@ -134,21 +124,13 @@ public class DspLibTest {
         assertEquals(0.0, window[0], delta);
         assertEquals(0.0, window[window.length - 1], delta);
 
+        //Envelope is within 0.0 and 1.0 for all values
         for (int i = 0; i < window.length; i ++){
             assertNotNull(window[i]);
             assertTrue("window["+Integer.toString(i) +"] = " + Double.toString(window[i])
                     +" is not between 0 and 1",
                     0.0 <= window[i] && window[i] <= magnitude);
         }
-
-        /*
-        assertFalse(printEnv(envelope)+"\n"
-                + "Peak: " + Integer.toString(envelope.peak)
-                +" SustainStart: " + Integer.toString(envelope.sustainStart)
-                +" SustainEnd: " + Integer.toString(envelope.sustainEnd)
-                +" "
-                , true);
-        */
 
         //Check peak conditions
         assertTrue("Peak: " + Integer.toString(envelope.peak)
@@ -199,5 +181,15 @@ public class DspLibTest {
             output += window[i];
         }
         return output;
+    }
+
+    public static String printArray(double[] array){
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < array.length; i++){
+            if(i!=0) sb.append(",");
+            sb.append(Double.toString(array[i]));
+        }
+
+        return sb.toString();
     }
 }

@@ -17,6 +17,9 @@ import java.nio.ByteOrder;
 public class DspLib {
     public static final double DEFAULT_ENV_THRESHOLD = 0.05;
 
+    /*
+    Generates a sine wave sample, with the desired parameters
+     */
     static public double[] sineWave(int numOfSamples, double magnitude, double frequency, int samplingRate) {
         double[] samples = new double[numOfSamples];
         double k = Math.PI * 2. * frequency / samplingRate;
@@ -29,7 +32,7 @@ public class DspLib {
 
     /*
     Computes forward FFT (time-domain to frequency-domain)
-    @return complex FFT values.
+    @return complex frequency-domain values.
      */
     static public double[] forwardFFT(double[] input) {
         DoubleFFT_1D inputSeq = new DoubleFFT_1D(input.length);
@@ -39,6 +42,10 @@ public class DspLib {
         return output;
     }
 
+    /*
+    Computes inverse FFT (frequency-domain to time-domain)
+    @return real time-domain values.
+     */
     static public double[] inverseFFT(double[] input) {
         DoubleFFT_1D inputSeq = new DoubleFFT_1D(input.length/2);
         double output[] = new double[input.length];
@@ -82,7 +89,7 @@ public class DspLib {
         int firstElemAfterBound = bounds[bounds.length-1] + 1;
         int numElemsLeft = buffer.length - firstElemAfterBound;
 
-        //Assume 0, to enforce envelope characteristic of always starting and ending with 0 intensity
+        //Compute local averages, also keeping track of the largest value
         for (int i = 0; i < anchors.length; i++){
             double weight = (double) 1 / (bounds[i+2]-bounds[i]+1);
             double runningAverage = 0;
