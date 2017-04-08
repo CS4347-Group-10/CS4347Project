@@ -108,9 +108,6 @@ public class DrumMode extends AppCompatActivity implements SensorEventListener {
         Filename = getCacheDir().getAbsolutePath();
         Filename +="drum_sound.wav";
 
-        //RecordFile = new File(Environment.getDataDirectory(),"drum_sound.wav");
-
-
         mySound = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
 
         Shake_id = mySound.load(this, R.raw.drumsound, 1);
@@ -130,18 +127,6 @@ public class DrumMode extends AppCompatActivity implements SensorEventListener {
     }
 
     private void resetRecorder() {
-        /*ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-
-        ParcelFileDescriptor[] descriptors = new ParcelFileDescriptor[0];
-        try {
-            descriptors = ParcelFileDescriptor.createPipe();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        ParcelFileDescriptor parcelRead = new ParcelFileDescriptor(descriptors[0]);
-        ParcelFileDescriptor parcelWrite = new ParcelFileDescriptor(descriptors[1]);
-
-        InputStream inputStream = new ParcelFileDescriptor.AutoCloseInputStream(parcelRead);*/
 
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
@@ -149,9 +134,8 @@ public class DrumMode extends AppCompatActivity implements SensorEventListener {
 
         mediaRecorder.setAudioEncodingBitRate(16);
         mediaRecorder.setAudioSamplingRate(44100);
-        //mediaRecorder.setOutputFile(RecordFile.getAbsolutePath());
+        
         mediaRecorder.setOutputFile(Filename);
-       // mediaRecorder.setOutputFile(parcelWrite.getFileDescriptor());
 
        try {
             mediaRecorder.prepare();
@@ -160,24 +144,6 @@ public class DrumMode extends AppCompatActivity implements SensorEventListener {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        /*mediaRecorder.start();
-        int read;
-        byte[] data = new byte[16384];
-
-        try {
-            while ((read = inputStream.read(data, 0, data.length)) != -1) {
-                byteArrayOutputStream.write(data, 0, read);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            byteArrayOutputStream.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        System.out.println(Arrays.toString(data));*/
 
     }
 
@@ -314,11 +280,7 @@ public class DrumMode extends AppCompatActivity implements SensorEventListener {
 
 
             if (shake_speed > SHAKETHRESHOLD) {
-                //mySound.play(Shake_id, 1 / volume, 1 / volume, 1, 0, 1);
                 int stream= mySound.load(Filename, 1);
-                //loadSound(loaded, stream, (1 / volume));
-
-
                 mySound.play(stream, 1 / volume, 1 / volume, 1, 0, 1);
                 drumHitAnimation();
                 //startPlaying();
