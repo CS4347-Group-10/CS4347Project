@@ -23,6 +23,8 @@ import cs4347group10.cs4347application.pojo.Envelope;
 
 import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -65,10 +67,11 @@ public class PianoMode  extends AppCompatActivity implements SensorEventListener
 
     private Sensor accelerometer;
     private long curTime, lastUpdate;
-    private float x,y,z,last_x,last_y,last_z, shake_speed;
+    private float x, y, z, last_x, last_y, last_z, shake_speed;
     private SensorManager mSensorManager;
 
     private ShakeEventListener mSensorListener;
+    private static String Filename;
 
     //******************************************************************//
 
@@ -88,7 +91,7 @@ public class PianoMode  extends AppCompatActivity implements SensorEventListener
         }
         Envelope en = DspLib.characterizeWithEnvelope(DspLib.floatToDouble(DspLib.shortToFloat(DspLib.byteToShort(temp))),1024, DspLib.DEFAULT_ENV_THRESHOLD);
         sf=new ShiftData(DspLib.floatToDouble(DspLib.shortToFloat(DspLib.byteToShort(temp))),en);*/
-
+        //processSound();
         Button octaveChange = (Button) findViewById(R.id.octave_button);
         octaveChange.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -107,9 +110,9 @@ public class PianoMode  extends AppCompatActivity implements SensorEventListener
         //*********************** Sensor initialisation *************************//
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        mSensorManager.registerListener(this,accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-        curTime = lastUpdate = (long)0.0;
-        x = y = z = last_x = last_y = last_z = (float)0.0;
+        mSensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+        curTime = lastUpdate = (long) 0.0;
+        x = y = z = last_x = last_y = last_z = (float) 0.0;
         mSensorListener = new ShakeEventListener();
         //***********************************************************************//
 
@@ -121,15 +124,15 @@ public class PianoMode  extends AppCompatActivity implements SensorEventListener
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
                         view.setPressed(true);
-                        mediaRecorder = new MediaRecorder();
-                        resetRecorder();
-                        mediaRecorder.start();
+                        //mediaRecorder = new MediaRecorder();
+                        //resetRecorder();
+                        //mediaRecorder.start();
                         findViewById(R.id.animation_loading).setVisibility(View.VISIBLE);
                         break;
                     case MotionEvent.ACTION_UP:
-                        mediaRecorder.stop();
-                        mediaRecorder.release();
-                        mediaRecorder = null;
+                        //mediaRecorder.stop();
+                        //mediaRecorder.release();
+                        //mediaRecorder = null;
                         view.setPressed(false);
                         processSound();
                         findViewById(R.id.animation_loading).setVisibility(View.INVISIBLE);
@@ -138,10 +141,11 @@ public class PianoMode  extends AppCompatActivity implements SensorEventListener
                 return true;
             }
         });
+        //Filename = getCacheDir().getAbsolutePath() + "/piano_sound.wav";
 
-        RecordFile = new File(Environment.getExternalStorageDirectory(), "piano_sound.wav");
+        // RecordFile = new File(Environment.getExternalStorageDirectory(), "piano_sound.wav");
 
-        for(int i=0; i<7; i++) {
+        for (int i = 0; i < 7; i++) {
             btnRunning[i] = false;
             aTracks[i] = null;
         }
@@ -173,8 +177,8 @@ public class PianoMode  extends AppCompatActivity implements SensorEventListener
                         posX = event.getX();
                         posY = event.getY();
                         int current = getButtonIndex(width, height, posX, posY);
-                        if(current >= 0) {
-                            if(btn != current) {
+                        if (current >= 0) {
+                            if (btn != current) {
                                 setBtnPressed(btn, false);
                                 setBtnPressed(current, true);
                                 btnRunning[btn] = false;
@@ -196,23 +200,43 @@ public class PianoMode  extends AppCompatActivity implements SensorEventListener
     }
 
     public void processSound() {
+        // Context context = getApplicationContext();
         Context context = getApplicationContext();
-
-        //****************************************************//
-        // Change this line to read from recorded file location
         InputStream in = context.getResources().openRawResource(R.raw.test1);
-
-        //****************************************************//
         DataInputStream dis = new DataInputStream(in);
         byte[] temp = new byte[88244];
         try {
             dis.read(temp, 0, 88244);
-        }catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        Envelope en = DspLib.characterizeWithEnvelope(DspLib.floatToDouble(DspLib.shortToFloat(DspLib.byteToShort(temp))),1024, DspLib.DEFAULT_ENV_THRESHOLD);
-        sf=new ShiftData(DspLib.floatToDouble(DspLib.shortToFloat(DspLib.byteToShort(temp))),en);
+        Envelope en = DspLib.characterizeWithEnvelope(DspLib.floatToDouble(DspLib.shortToFloat(DspLib.byteToShort(temp))), 1024, DspLib.DEFAULT_ENV_THRESHOLD);
+        sf = new ShiftData(DspLib.floatToDouble(DspLib.shortToFloat(DspLib.byteToShort(temp))), en);
     }
+    //****************************************************//
+    // Change this line to read from recorded file location
+    //InputStream in = context.getResources().openRawResource(R.raw.test1);
+        /*InputStream in = null;
+        try {
+            in = new FileInputStream(Filename);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        File file = new File (Filename);
+        long filesize = file.length();
+
+        DataInputStream dis = new DataInputStream(in);
+        byte[] temp = new byte[(int)filesize];
+        try {
+            dis.read(temp, 0, (int)filesize);
+        }catch (IOException e){
+            e.printStackTrace();
+        }*/
+        //Envelope en = DspLib.characterizeWithEnvelope(DspLib.floatToDouble(DspLib.shortToFloat(DspLib.byteToShort(temp))),1024, DspLib.DEFAULT_ENV_THRESHOLD);
+        //sf=new ShiftData(DspLib.floatToDouble(DspLib.shortToFloat(DspLib.byteToShort(temp))),en);
+        //soundBuffer = DspLib.byteToShort(temp);
+        //Log.d("DEBUG", "Test");
+
 
     public int getButtonIndex(float width, float height, float x, float y) {
         int i = -1;
@@ -278,6 +302,7 @@ public class PianoMode  extends AppCompatActivity implements SensorEventListener
                 // start audio
                 AudioTrack track = aTracks[btnIndex];
                 track.play();
+                //track.write(soundBuffer, 0, soundBuffer.length);
                 if(sf != null) {
                     int btnNum = btn - 7 + octave * 7;
                     short[] fullSound = sf.getFullNote(btnNum);
@@ -310,7 +335,7 @@ public class PianoMode  extends AppCompatActivity implements SensorEventListener
 
         mediaRecorder.setAudioEncodingBitRate(16);
         mediaRecorder.setAudioSamplingRate(44100);
-        mediaRecorder.setOutputFile(RecordFile.getAbsolutePath());
+        mediaRecorder.setOutputFile(Filename);
 
         try {
             mediaRecorder.prepare();
